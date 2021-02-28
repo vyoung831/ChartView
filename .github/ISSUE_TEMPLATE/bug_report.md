@@ -2,33 +2,37 @@
 name: Bug report
 about: Create a report to help us improve
 title: ''
-labels: ''
+labels: 'bug'
 assignees: ''
 
 ---
-<!--- Provide a general summary of the issue in the Title above -->
 
+**Bug description**
+A clear and concise description the bug.
 
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
-## Description
-<!--- Provide a more detailed introduction to the issue itself, and why you consider it to be a bug -->
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-## Expected Behavior
-<!--- Tell us what should happen -->
+**Desktop (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
 
-## Actual Behavior
-<!--- Tell us what happens instead -->
+**Smartphone (please complete the following information):**
+ - Device: [e.g. iPhone6]
+ - OS: [e.g. iOS8.1]
+ - Browser [e.g. stock browser, safari]
+ - Version [e.g. 22]
 
-## Possible Fix
-<!--- Not obligatory, but suggest a fix or reason for the bug -->
+**Additional context**
+Add any other context about the problem here.
 
-## Steps to Reproduce
-<!--- Provide a link to a live example, or an unambiguous set of steps to -->
-<!--- reproduce this bug. Include code to reproduce, if relevant -->
-
-## Your Environment
-<!--- Include as many relevant details about the environment -->
-* Version of this package used:
-* Device/Simulator:
-* Operating System and version:
-* Link to your project:
+**Acceptance criteria**
+This issue can be closed when the following acceptance criteria are satisfied:
