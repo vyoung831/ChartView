@@ -9,91 +9,85 @@
 import SwiftUI
 
 struct Legend: View {
-    @ObservedObject var data: ChartData
+    
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
+    
+    let totalSteps: Int = 4
+    let stepLineWidth: CGFloat = 2
+    
     @Binding var frame: CGRect
     @Binding var hideHorizontalLines: Bool
-    @Environment(\.colorScheme) var colorScheme: ColorScheme
-    let padding:CGFloat = 3
-
-    var stepWidth: CGFloat {
-        if data.points.count < 2 {
-            return 0
-        }
-        return frame.size.width / CGFloat(data.points.count-1)
-    }
-    var stepHeight: CGFloat {
-        let points = self.data.onlyPoints()
-        if let min = points.min(), let max = points.max(), min != max {
-            if (min < 0){
-                return (frame.size.height-padding) / CGFloat(max - min)
-            }else{
-                return (frame.size.height-padding) / CGFloat(max - min)
-            }
-        }
-        return 0
-    }
+    @ObservedObject var data: ChartData
     
     var min: CGFloat {
-        let points = self.data.onlyPoints()
-        return CGFloat(points.min() ?? 0)
+        return CGFloat(self.data.onlyPoints().min()!)
+    }
+    
+    var max: CGFloat {
+        return CGFloat(self.data.onlyPoints().max()!)
+    }
+    
+    /**
+     Returns the y-axis value of a specific step.
+     Given the `ChartData` and total number of y-axis steps, returns the y-value that a specific step is to be assigned.
+     - parameter step: The step for which to return the y-value for. Possible values = [0 ... `totalSteps`]
+     - returns: The y-value for the provided step.
+     */
+    func getStepYValue(step: Int) -> CGFloat {
+        let stepHeight = (max - min) / CGFloat(totalSteps)
+        return min + (CGFloat(step) * stepHeight)
+    }
+    
+    /**
+     Gets the offset of a step from the center of `frame`.
+     - parameter step: The step for which to return the y-offset from the center for.
+     - returns: The y-offset from `frame`'s center that the step line should be drawn on.
+     */
+    func getOffsetFromCenter(step: Int) -> CGFloat {
+        let diff = max - min
+        let stepHeight = diff/CGFloat(totalSteps)
+        let yValue = CGFloat(stepHeight * CGFloat(step))
+        let offsetFromBottom = yValue / CGFloat(diff)
+        
+        return self.frame.height/2 - (offsetFromBottom * self.frame.height)
+    }
+    
+    /**
+     Returns a horizontal line, drawn at a specified height.
+     - parameter atHeight: The height at which to draw the line
+     - parameter length: The length of the line to be drawn.
+     - returns: Horizontal line drawn at the specified height and with the specified length.
+     */
+    func line(atHeight: CGFloat, length: CGFloat) -> Path {
+        var hLine = Path()
+        let yValue = ((atHeight - min) / (max - min)) * self.frame.height
+        hLine.move(to: CGPoint(x: 0, y: yValue))
+        hLine.addLine(to: CGPoint(x: length, y: yValue))
+        return hLine
     }
     
     var body: some View {
+        
         ZStack(alignment: .topLeading){
-            ForEach((0...4), id: \.self) { height in
+            ForEach(0 ... totalSteps, id: \.self) { stepIdx in
                 HStack(alignment: .center){
-                    Text("\(self.getYLegendSafe(height: height), specifier: "%.2f")").offset(x: 0, y: self.getYposition(height: height) )
+                    Text("\(self.getStepYValue(step: stepIdx), specifier: "%.2f")")
+                        .offset(x: 0, y: self.getOffsetFromCenter(step: stepIdx))
                         .foregroundColor(Colors.LegendText)
                         .font(.caption)
-                    self.line(atHeight: self.getYLegendSafe(height: height), width: self.frame.width)
-                        .stroke(self.colorScheme == .dark ? Colors.LegendDarkColor : Colors.LegendColor, style: StrokeStyle(lineWidth: 1.5, lineCap: .round, dash: [5,height == 0 ? 0 : 10]))
-                        .opacity((self.hideHorizontalLines && height != 0) ? 0 : 1)
+                    self.line(atHeight: self.getStepYValue(step: stepIdx), length: self.frame.width)
+                        .stroke(self.colorScheme == .dark ? Colors.LegendDarkColor : Colors.LegendColor,
+                                style: StrokeStyle(lineWidth: self.stepLineWidth,
+                                                   lineCap: .round, dash: [5, stepIdx == 0 ? 0 : 10]))
+                        .opacity((self.hideHorizontalLines && stepIdx != 0) ? 0 : 1)
                         .rotationEffect(.degrees(180), anchor: .center)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                         .animation(.easeOut(duration: 0.2))
                         .clipped()
                 }
-               
             }
-            
         }
+        
     }
     
-    func getYLegendSafe(height:Int)->CGFloat{
-        if let legend = getYLegend() {
-            return CGFloat(legend[height])
-        }
-        return 0
-    }
-    
-    func getYposition(height: Int)-> CGFloat {
-        if let legend = getYLegend() {
-            return (self.frame.height-((CGFloat(legend[height]) - min)*self.stepHeight))-(self.frame.height/2)
-        }
-        return 0
-       
-    }
-    
-    func line(atHeight: CGFloat, width: CGFloat) -> Path {
-        var hLine = Path()
-        hLine.move(to: CGPoint(x:5, y: (atHeight-min)*stepHeight))
-        hLine.addLine(to: CGPoint(x: width, y: (atHeight-min)*stepHeight))
-        return hLine
-    }
-    
-    func getYLegend() -> [Double]? {
-        let points = self.data.onlyPoints()
-        guard let max = points.max() else { return nil }
-        guard let min = points.min() else { return nil }
-        let step = Double(max - min)/4
-        return [min+step * 0, min+step * 1, min+step * 2, min+step * 3, min+step * 4]
-    }
-}
-
-struct Legend_Previews: PreviewProvider {
-    static var previews: some View {
-        GeometryReader{ geometry in
-            Legend(data: ChartData(points: [0.2,0.4,1.4,4.5]), frame: .constant(geometry.frame(in: .local)), hideHorizontalLines: .constant(false))
-        }.frame(width: 320, height: 200)
-    }
 }
