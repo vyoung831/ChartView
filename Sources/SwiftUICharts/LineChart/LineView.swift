@@ -90,13 +90,14 @@ public struct LineView: View {
                         }
                         
                         Line(data: self.data,
-                             frame: .constant(CGRect(x: 0, y: 0, width: reader.frame(in: .local).width - 30, height: reader.frame(in: .local).height)),
+                             gradient: self.style.gradientColor,
+                             showBackground: false,
+                             frame: .constant(CGRect(x: 0, y: 0, width: reader.frame(in: .local).width - 30,
+                                                     height: reader.frame(in: .local).height)),
                              touchLocation: self.$indicatorLocation,
                              showIndicator: self.$hideHorizontalLines,
                              minDataValue: .constant(nil),
-                             maxDataValue: .constant(nil),
-                             showBackground: false,
-                             gradient: self.style.gradientColor
+                             maxDataValue: .constant(nil)
                         )
                         .offset(x: 30, y: -20)
                         .onAppear(){
