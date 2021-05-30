@@ -153,12 +153,3 @@ public struct MultiLineChartView: View {
 //        return .zero
 //    }
 }
-
-struct MultiWidgetView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            MultiLineChartView(data: [([8,23,54,32,12,37,7,23,43], GradientColors.orange)], title: "Line chart", legend: "Basic")
-                .environment(\.colorScheme, .light)
-        }
-    }
-}

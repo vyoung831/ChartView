@@ -20,9 +20,3 @@ struct IndicatorPoint: View {
         .shadow(color: Colors.LegendColor, radius: 6, x: 0, y: 6)
     }
 }
-
-struct IndicatorPoint_Previews: PreviewProvider {
-    static var previews: some View {
-        IndicatorPoint()
-    }
-}
