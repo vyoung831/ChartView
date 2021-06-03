@@ -18,6 +18,8 @@ public struct LineView: View {
     public var darkModeStyle: ChartStyle
     public var valueSpecifier: String
     
+    let offsetForLegend: CGFloat = 40
+    
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     @State private var showLegend = false
     @State private var dragLocation: CGPoint = .zero
@@ -92,14 +94,14 @@ public struct LineView: View {
                         Line(data: self.data,
                              gradient: self.style.gradientColor,
                              showBackground: false,
-                             frame: .constant(CGRect(x: 0, y: 0, width: reader.frame(in: .local).width - 30,
+                             frame: .constant(CGRect(x: 0, y: 0, width: reader.frame(in: .local).width - offsetForLegend,
                                                      height: reader.frame(in: .local).height)),
                              touchLocation: self.$indicatorLocation,
                              showIndicator: self.$hideHorizontalLines,
                              minDataValue: .constant(nil),
                              maxDataValue: .constant(nil)
                         )
-                        .offset(x: 30, y: -20)
+                        .offset(x: offsetForLegend, y: 0)
                         .onAppear(){
                             self.showLegend = true
                         }

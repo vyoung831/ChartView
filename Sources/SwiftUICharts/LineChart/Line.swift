@@ -13,9 +13,8 @@ public struct Line: View {
     @ObservedObject var data: ChartData
     
     var gradient: GradientColor = GradientColor(start: Colors.GradientPurple, end: Colors.GradientNeonBlue)
-    var index:Int = 0
-    let padding:CGFloat = 30
-    var curvedLines: Bool = true
+    var index: Int = 0
+    var curvedLines: Bool = false
     
     @State var showBackground: Bool = true
     @State private var showFull: Bool = false
@@ -33,6 +32,7 @@ public struct Line: View {
         return frame.size.width / CGFloat(data.points.count-1)
     }
     
+    // Returns the number of pixels that each y-axis increment of +1 takes up.
     var stepHeight: CGFloat {
         var min: Double?
         var max: Double?
@@ -48,9 +48,9 @@ public struct Line: View {
         }
         if let min = min, let max = max, min != max {
             if (min <= 0){
-                return (frame.size.height-padding) / CGFloat(max - min)
+                return (frame.size.height) / CGFloat(max - min)
             }else{
-                return (frame.size.height-padding) / CGFloat(max - min)
+                return (frame.size.height) / CGFloat(max - min)
             }
         }
         return 0

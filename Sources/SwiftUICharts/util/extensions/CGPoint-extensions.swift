@@ -15,12 +15,17 @@ extension CGPoint {
         return CGPoint(x: x, y: y)
     }
     
-    func line(to: CGPoint) -> CGFloat {
-        dist(to: to)
+    /**
+     Returns the distance from this to another CGPoint.
+     - parameter to: The other CGPoint.
+     - returns: Distance from this to another CGPoint.
+     */
+    func distance(to: CGPoint) -> CGFloat {
+        return sqrt((pow(self.x - to.x, 2) + pow(self.y - to.y, 2)))
     }
     
     func line(to: CGPoint, x: CGFloat) -> CGFloat {
-        dist(to: point(to: to, x: x))
+        distance(to: point(to: to, x: x))
     }
     
     func quadCurve(to: CGPoint, control: CGPoint) -> CGFloat {
@@ -33,7 +38,7 @@ extension CGPoint {
             let a = point(to: to, t: t0, control: control)
             let b = point(to: to, t: t1, control: control)
             
-            dist += a.line(to: b)
+            dist += a.distance(to: b)
         }
         return dist
     }
@@ -54,11 +59,11 @@ extension CGPoint {
                 dist += a.line(to: b, x: x)
                 return dist
             } else if b.x == x {
-                dist += a.line(to: b)
+                dist += a.distance(to: b)
                 return dist
             }
             
-            dist += a.line(to: b)
+            dist += a.distance(to: b)
         }
         return dist
     }
@@ -81,7 +86,7 @@ extension CGPoint {
             let a = point(to: to, t: t0, control1: control1, control2: control2)
             let b = point(to: to, t: t1, control1: control1, control2: control2)
             
-            dist += a.line(to: b)
+            dist += a.distance(to: b)
         }
         
         return dist
@@ -104,11 +109,11 @@ extension CGPoint {
                 dist += a.line(to: b, x: x)
                 return dist
             } else if b.x == x {
-                dist += a.line(to: b)
+                dist += a.distance(to: b)
                 return dist
             }
             
-            dist += a.line(to: b)
+            dist += a.distance(to: b)
         }
         
         return dist
@@ -147,10 +152,6 @@ extension CGPoint {
         )
     }
     
-    func dist(to: CGPoint) -> CGFloat {
-        return sqrt((pow(self.x - to.x, 2) + pow(self.y - to.y, 2)))
-    }
-    
     static func midPointForPoints(p1:CGPoint, p2:CGPoint) -> CGPoint {
         return CGPoint(x:(p1.x + p2.x) / 2,y: (p1.y + p2.y) / 2)
     }
@@ -166,4 +167,5 @@ extension CGPoint {
         }
         return controlPoint
     }
+    
 }
