@@ -19,7 +19,6 @@ public struct Line: View {
     @State var showBackground: Bool = true
     @State private var showFull: Bool = false
     
-    @Binding var frame: CGRect
     @Binding var touchLocation: CGPoint
     @Binding var showIndicator: Bool
     @Binding var minDataValue: Double?

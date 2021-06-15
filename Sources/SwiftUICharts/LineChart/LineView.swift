@@ -91,8 +91,6 @@ public struct LineView: View {
                         Line(data: self.data,
                              gradient: self.style.gradientColor,
                              showBackground: false,
-                             frame: .constant(CGRect(x: 0, y: 0, width: reader.frame(in: .local).width - Legend.legendOffset,
-                                                     height: reader.frame(in: .local).height)),
                              touchLocation: self.$indicatorLocation,
                              showIndicator: self.$hideHorizontalLines,
                              minDataValue: .constant(nil),
