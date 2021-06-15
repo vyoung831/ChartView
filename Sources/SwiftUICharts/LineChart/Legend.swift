@@ -14,6 +14,7 @@ struct Legend: View {
     
     let totalSteps: Int = 4
     let stepLineWidth: CGFloat = 2
+    static let legendOffset: CGFloat = 50
     
     @Binding var frame: CGRect
     @Binding var hideHorizontalLines: Bool
@@ -70,12 +71,13 @@ struct Legend: View {
         
         ZStack(alignment: .topLeading){
             ForEach(0 ... totalSteps, id: \.self) { stepIdx in
-                HStack(alignment: .center){
+                HStack(alignment: .center, spacing: 0){
                     Text("\(self.getStepYValue(step: stepIdx), specifier: "%.2f")")
+                        .frame(width: Legend.legendOffset)
                         .offset(x: 0, y: self.getOffsetFromCenter(step: stepIdx))
                         .foregroundColor(Colors.LegendText)
                         .font(.caption)
-                    self.line(atHeight: self.getStepYValue(step: stepIdx), length: self.frame.width)
+                    self.line(atHeight: self.getStepYValue(step: stepIdx), length: self.frame.width - Legend.legendOffset)
                         .stroke(self.colorScheme == .dark ? Colors.LegendDarkColor : Colors.LegendColor,
                                 style: StrokeStyle(lineWidth: self.stepLineWidth,
                                                    lineCap: .round, dash: [5, stepIdx == 0 ? 0 : 10]))
