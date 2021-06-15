@@ -27,7 +27,8 @@ public struct GradientColor {
 // MARK: - ChartData
 
 public class ChartData: ObservableObject, Identifiable {
-    @Published var points: [(String,Double)]
+    
+    @Published var points: [(x: String, y: Double)]
     var valuesGiven: Bool = false
     var ID = UUID()
     

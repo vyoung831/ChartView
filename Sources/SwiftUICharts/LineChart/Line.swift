@@ -152,7 +152,7 @@ public struct Line: View {
                     .drawingGroup()
                 
                 ForEach(0 ..< data.onlyPoints().count, id: \.self) { idx in
-                    // TO-DO: Handle if return from offset is nil
+                    // TO-DO: Handle if return from `getYOffsetFromCenter` is nil
                     if let y = getYOffsetFromCenter(idx: idx, totalHeight: gr.size.height) {
                         Circle()
                             .frame(width: 10, height: 10)

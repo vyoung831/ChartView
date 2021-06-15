@@ -24,8 +24,23 @@ public struct LineView: View {
     @State private var indicatorLocation: CGPoint = .zero
     @State private var closestPoint: CGPoint = .zero
     @State private var opacity: Double = 0
-    @State private var currentDataNumber: Double = 0
+    
+    @State private var currentX: String = ""
+    @State private var currentY: Double = 0
     @State private var hideHorizontalLines: Bool = false
+    
+    public init(data: [(String,Double)],
+                title: String? = nil,
+                legend: String? = nil,
+                style: ChartStyle = Styles.lineChartStyleOne,
+                valueSpecifier: String? = "%.1f") {
+        self.data = ChartData(values: data)
+        self.title = title
+        self.legend = legend
+        self.style = style
+        self.valueSpecifier = valueSpecifier!
+        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
+    }
     
     public init(data: [Double],
                 title: String? = nil,
@@ -47,7 +62,8 @@ public struct LineView: View {
         
         let index:Int = Int(floor((toPoint.x-15)/stepWidth))
         if (index >= 0 && index < points.count){
-            self.currentDataNumber = points[index]
+            self.currentX = self.data.points[index].x
+            self.currentY = points[index]
             return CGPoint(x: CGFloat(index)*stepWidth, y: CGFloat(points[index])*stepHeight)
         }
         return .zero
@@ -110,9 +126,12 @@ public struct LineView: View {
                     .frame(width: geometry.frame(in: .local).size.width, height: 240)
                     .offset(x: 0, y: 40 )
                     
-                    MagnifierRect(currentNumber: self.$currentDataNumber, valueSpecifier: self.valueSpecifier)
+                    MagnifierRect(valueSpecifier: self.valueSpecifier,
+                                  x: self.$currentX,
+                                  y: self.$currentY)
                         .opacity(self.opacity)
                         .offset(x: self.dragLocation.x - geometry.frame(in: .local).size.width/2, y: 36)
+                        .frame(width: MagnifierRect.width, height: 260)
                 }
                 .frame(width: geometry.frame(in: .local).size.width, height: 240)
                 .gesture(DragGesture()
