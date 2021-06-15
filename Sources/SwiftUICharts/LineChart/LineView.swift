@@ -82,8 +82,7 @@ public struct LineView: View {
                             .foregroundColor(.clear)
                         
                         if self.showLegend {
-                            Legend(frame: .constant(reader.frame(in: .local)),
-                                   hideHorizontalLines: self.$hideHorizontalLines,
+                            Legend(hideHorizontalLines: self.$hideHorizontalLines,
                                    data: self.data)
                                 .transition(.opacity)
                                 .animation(Animation.easeOut(duration: 1))

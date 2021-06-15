@@ -16,7 +16,6 @@ struct Legend: View {
     let stepLineWidth: CGFloat = 2
     static let legendOffset: CGFloat = 50
     
-    @Binding var frame: CGRect
     @Binding var hideHorizontalLines: Bool
     @ObservedObject var data: ChartData
     
@@ -40,28 +39,30 @@ struct Legend: View {
     }
     
     /**
-     Gets the offset of a step from the center of `frame`.
+     Gets the offset of a step from the center of its parent view.
      - parameter step: The step for which to return the y-offset from the center for.
-     - returns: The y-offset from `frame`'s center that the step line should be drawn on.
+     - parameter totalHeight: The total height of the parent view that the step would be drawn in.
+     - returns: The y-offset from the parent view's center that the step line should be drawn on.
      */
-    func getOffsetFromCenter(step: Int) -> CGFloat {
+    func getOffsetFromCenter(step: Int, totalHeight: CGFloat) -> CGFloat {
         let diff = max - min
         let stepHeight = diff/CGFloat(totalSteps)
         let yValue = CGFloat(stepHeight * CGFloat(step))
         let offsetFromBottom = yValue / CGFloat(diff)
         
-        return self.frame.height/2 - (offsetFromBottom * self.frame.height)
+        return totalHeight/2 - (offsetFromBottom * totalHeight)
     }
     
     /**
      Returns a horizontal line, drawn at a specified height.
      - parameter atHeight: The height at which to draw the line
      - parameter length: The length of the line to be drawn.
+     - parameter totalHeight: The total height of the parent view that the line is to be drawn in.
      - returns: Horizontal line drawn at the specified height and with the specified length.
      */
-    func line(atHeight: CGFloat, length: CGFloat) -> Path {
+    func line(atHeight: CGFloat, length: CGFloat, totalHeight: CGFloat) -> Path {
         var hLine = Path()
-        let yValue = ((atHeight - min) / (max - min)) * self.frame.height
+        let yValue = ((atHeight - min) / (max - min)) * totalHeight
         hLine.move(to: CGPoint(x: 0, y: yValue))
         hLine.addLine(to: CGPoint(x: length, y: yValue))
         return hLine
@@ -69,25 +70,29 @@ struct Legend: View {
     
     var body: some View {
         
-        ZStack(alignment: .topLeading){
-            ForEach(0 ... totalSteps, id: \.self) { stepIdx in
-                HStack(alignment: .center, spacing: 0){
-                    Text("\(self.getStepYValue(step: stepIdx), specifier: "%.2f")")
-                        .frame(width: Legend.legendOffset)
-                        .offset(x: 0, y: self.getOffsetFromCenter(step: stepIdx))
-                        .foregroundColor(Colors.LegendText)
-                        .font(.caption)
-                    self.line(atHeight: self.getStepYValue(step: stepIdx), length: self.frame.width - Legend.legendOffset)
-                        .stroke(self.colorScheme == .dark ? Colors.LegendDarkColor : Colors.LegendColor,
-                                style: StrokeStyle(lineWidth: self.stepLineWidth,
-                                                   lineCap: .round, dash: [5, stepIdx == 0 ? 0 : 10]))
-                        .opacity((self.hideHorizontalLines && stepIdx != 0) ? 0 : 1)
-                        .rotationEffect(.degrees(180), anchor: .center)
-                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                        .animation(.easeOut(duration: 0.2))
-                        .clipped()
+        GeometryReader { gr in
+            
+            ZStack(alignment: .topLeading) {
+                ForEach(0 ... totalSteps, id: \.self) { stepIdx in
+                    HStack(alignment: .center, spacing: 0) {
+                        Text("\(self.getStepYValue(step: stepIdx), specifier: "%.2f")")
+                            .frame(width: Legend.legendOffset)
+                            .offset(x: 0, y: self.getOffsetFromCenter(step: stepIdx, totalHeight: gr.size.height))
+                            .foregroundColor(Colors.LegendText)
+                            .font(.caption)
+                        self.line(atHeight: self.getStepYValue(step: stepIdx), length: gr.size.width - Legend.legendOffset, totalHeight: gr.size.height)
+                            .stroke(self.colorScheme == .dark ? Colors.LegendDarkColor : Colors.LegendColor,
+                                    style: StrokeStyle(lineWidth: self.stepLineWidth,
+                                                       lineCap: .round, dash: [5, stepIdx == 0 ? 0 : 10]))
+                            .opacity((self.hideHorizontalLines && stepIdx != 0) ? 0 : 1)
+                            .rotationEffect(.degrees(180), anchor: .center)
+                            .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                            .animation(.easeOut(duration: 0.2))
+                            .clipped()
+                    }
                 }
             }
+            
         }
         
     }
