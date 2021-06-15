@@ -96,8 +96,8 @@ public struct LineView: View {
                              minDataValue: .constant(nil),
                              maxDataValue: .constant(nil)
                         )
-                        .frame(width: reader.frame(in: .local).width - Legend.legendOffset,
-                               height: reader.frame(in: .local).height)
+                        .frame(width: reader.size.width - Legend.legendOffset,
+                               height: reader.size.height)
                         .offset(x: Legend.legendOffset, y: 0)
                         .onAppear(){
                             self.showLegend = true

@@ -64,6 +64,39 @@ public struct Line: View {
         return 0
     }
     
+    /**
+     Given the number of values in `data`, calculates and returns the X offset from the center that an element in `data` should be drawn at.
+     - parameter idx: The index of the element in `data` for which to calculate the X offset from.
+     - parameter totalWidth: The total width of the view that this Line is drawn in.
+     - returns: The x-offset from the center for the element in `data` at index `idx`.
+     */
+    private func getXOffsetFromCenter(idx: Int, totalWidth: CGFloat) -> CGFloat {
+        let xRatio = CGFloat(idx) / (CGFloat(data.onlyPoints().count) - 1)
+        let scaledX = totalWidth * xRatio
+        return scaledX - (totalWidth/2)
+    }
+    
+    /**
+     Given the min and max values  in `data`, calculates and returns the Y offset from the center that an element in `data` should be drawn at.
+     - parameter idx: The index of the element in `data` for which to calculate the Y offset from.
+     - parameter totalHeight: The total height of the view that this Line is drawn in.
+     - returns: (Optional) The y-offset from the center for the element in `data` at index `idx`.
+     */
+    private func getYOffsetFromCenter(idx: Int, totalHeight: CGFloat) -> CGFloat? {
+        
+        guard let minDouble = data.onlyPoints().min(), let maxDouble = data.onlyPoints().max() else {
+            return nil
+        }
+        
+        let min = CGFloat(minDouble), max = CGFloat(maxDouble)
+        let yDiff = max - min
+        let yHeight = CGFloat(data.onlyPoints()[idx]) - min
+        let yRatio = yHeight / yDiff
+        let scaledY = totalHeight * yRatio
+        return (totalHeight/2) - scaledY
+        
+    }
+    
     private func path(totalSize: CGSize) -> Path {
         let points = self.data.onlyPoints()
         let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
@@ -84,7 +117,7 @@ public struct Line: View {
         }
     }
     
-    func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
+    private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
         let closest = self.path(totalSize: totalSize).point(to: touchLocation.x)
         return closest
     }
@@ -117,6 +150,16 @@ public struct Line: View {
                         self.showFull = false
                     }
                     .drawingGroup()
+                
+                ForEach(0 ..< data.onlyPoints().count, id: \.self) { idx in
+                    // TO-DO: Handle if return from offset is nil
+                    if let y = getYOffsetFromCenter(idx: idx, totalHeight: gr.size.height) {
+                        Circle()
+                            .frame(width: 10, height: 10)
+                            .offset(x: getXOffsetFromCenter(idx: idx, totalWidth: gr.size.width),
+                                    y: y)
+                    }
+                }
                 
                 if(self.showIndicator) {
                     IndicatorPoint()
