@@ -73,6 +73,8 @@ struct Legend: View {
         GeometryReader { gr in
             
             ZStack(alignment: .topLeading) {
+                
+                // Step lines
                 ForEach(0 ... totalSteps, id: \.self) { stepIdx in
                     HStack(alignment: .center, spacing: 0) {
                         Text("\(self.getStepYValue(step: stepIdx), specifier: "%.2f")")
@@ -83,7 +85,8 @@ struct Legend: View {
                         self.line(atHeight: self.getStepYValue(step: stepIdx), length: gr.size.width - Legend.legendOffset, totalHeight: gr.size.height)
                             .stroke(self.colorScheme == .dark ? Colors.LegendDarkColor : Colors.LegendColor,
                                     style: StrokeStyle(lineWidth: self.stepLineWidth,
-                                                       lineCap: .round, dash: [5, stepIdx == 0 ? 0 : 10]))
+                                                       lineCap: .round,
+                                                       dash: [5, stepIdx == 0 ? 0 : 10]))
                             .opacity((self.hideHorizontalLines && stepIdx != 0) ? 0 : 1)
                             .rotationEffect(.degrees(180), anchor: .center)
                             .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
@@ -91,6 +94,20 @@ struct Legend: View {
                             .clipped()
                     }
                 }
+                
+                // x-axis
+                if max >= 0 && min <= 0 {
+                    self.line(atHeight: 0, length: gr.size.width - Legend.legendOffset, totalHeight: gr.size.height)
+                        .offset(x: Legend.legendOffset)
+                        .stroke(Color.red,
+                                style: StrokeStyle(lineWidth: self.stepLineWidth,
+                                                   lineCap: .round))
+                        .rotationEffect(.degrees(180), anchor: .center)
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .animation(.easeOut(duration: 0.2))
+                        .clipped()
+                }
+                
             }
             
         }
