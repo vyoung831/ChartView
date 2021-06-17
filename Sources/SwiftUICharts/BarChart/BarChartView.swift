@@ -95,22 +95,22 @@ public struct BarChartView : View {
                 maxWidth: self.isFullWidth ? .infinity : self.formSize.width,
                 minHeight:self.formSize.height,
                 maxHeight:self.formSize.height)
-            .gesture(DragGesture()
-                .onChanged({ value in
-                    self.touchLocation = value.location.x/self.formSize.width
-                    self.showValue = true
-                    self.currentValue = self.getCurrentValue()?.1 ?? 0
-                    if(self.data.valuesGiven && self.formSize == ChartForm.medium) {
-                        self.showLabelValue = true
-                    }
-                })
-                .onEnded({ value in
-                    self.showValue = false
-                    self.showLabelValue = false
-                    self.touchLocation = -1
-                })
+        .gesture(DragGesture()
+                    .onChanged({ value in
+                        self.touchLocation = value.location.x/self.formSize.width
+                        self.showValue = true
+                        self.currentValue = self.getCurrentValue()?.1 ?? 0
+                        if(self.data.valuesGiven && self.formSize == ChartForm.medium) {
+                            self.showLabelValue = true
+                        }
+                    })
+                    .onEnded({ value in
+                        self.showValue = false
+                        self.showLabelValue = false
+                        self.touchLocation = -1
+                    })
         )
-            .gesture(TapGesture()
+        .gesture(TapGesture()
         )
     }
     
@@ -135,3 +135,14 @@ public struct BarChartView : View {
         return self.data.points[index]
     }
 }
+
+#if DEBUG
+struct ChartView_Previews : PreviewProvider {
+    static var previews: some View {
+        BarChartView(data: TestData.values ,
+                     title: "Model 3 sales",
+                     legend: "Quarterly",
+                     valueSpecifier: "%.0f")
+    }
+}
+#endif

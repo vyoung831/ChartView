@@ -43,9 +43,6 @@ extension Path {
         return ret
     }
     
-    /**
-     
-     */
     func trimmedPath(for percent: CGFloat) -> Path {
         // percent difference between points
         let boundsDistance: CGFloat = 0.001
