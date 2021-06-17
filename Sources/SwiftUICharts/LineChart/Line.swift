@@ -9,98 +9,170 @@
 import SwiftUI
 
 public struct Line: View {
+    
     @ObservedObject var data: ChartData
-    @Binding var frame: CGRect
+    
+    var gradient: GradientColor = GradientColor(start: Colors.GradientPurple, end: Colors.GradientNeonBlue)
+    var index: Int = 0
+    var curvedLines: Bool = false
+    
+    @State var showBackground: Bool = true
+    @State private var showFull: Bool = false
+    
     @Binding var touchLocation: CGPoint
     @Binding var showIndicator: Bool
     @Binding var minDataValue: Double?
     @Binding var maxDataValue: Double?
-    @State private var showFull: Bool = false
-    @State var showBackground: Bool = true
-    var gradient: GradientColor = GradientColor(start: Colors.GradientPurple, end: Colors.GradientNeonBlue)
-    var index:Int = 0
-    let padding:CGFloat = 30
-    var curvedLines: Bool = true
-    var stepWidth: CGFloat {
+    
+    /**
+     Calculates and returns the horizontal spacing between each point in `data`.
+     - parameter totalWidth: The total width available for this view to be drawn in.
+     - returns: The horizontal spacing to set between each point in `data`.
+     */
+    func stepWidth(totalWidth: CGFloat) -> CGFloat {
         if data.points.count < 2 {
             return 0
         }
-        return frame.size.width / CGFloat(data.points.count-1)
+        return totalWidth / CGFloat(data.points.count-1)
     }
-    var stepHeight: CGFloat {
+    
+    /**
+     Calculates and returns the number of pixels that each y-axis increment of value +1 takes up.
+     - parameter totalHeight: The total height available for this view to be drawn in
+     - returns: The number of pixels that each y-axis increment of value +1 takes up.
+     */
+    func stepHeight(totalHeight: CGFloat) -> CGFloat {
         var min: Double?
         var max: Double?
         let points = self.data.onlyPoints()
         if minDataValue != nil && maxDataValue != nil {
             min = minDataValue!
             max = maxDataValue!
-        }else if let minPoint = points.min(), let maxPoint = points.max(), minPoint != maxPoint {
+        } else if let minPoint = points.min(), let maxPoint = points.max(), minPoint != maxPoint {
             min = minPoint
             max = maxPoint
-        }else {
+        } else {
             return 0
         }
         if let min = min, let max = max, min != max {
             if (min <= 0){
-                return (frame.size.height-padding) / CGFloat(max - min)
+                return totalHeight / CGFloat(max - min)
             }else{
-                return (frame.size.height-padding) / CGFloat(max - min)
+                return totalHeight / CGFloat(max - min)
             }
         }
         return 0
     }
-    var path: Path {
-        let points = self.data.onlyPoints()
-        return curvedLines ? Path.quadCurvedPathWithPoints(points: points, step: CGPoint(x: stepWidth, y: stepHeight), globalOffset: minDataValue) : Path.linePathWithPoints(points: points, step: CGPoint(x: stepWidth, y: stepHeight))
-    }
-    var closedPath: Path {
-        let points = self.data.onlyPoints()
-        return curvedLines ? Path.quadClosedCurvedPathWithPoints(points: points, step: CGPoint(x: stepWidth, y: stepHeight), globalOffset: minDataValue) : Path.closedLinePathWithPoints(points: points, step: CGPoint(x: stepWidth, y: stepHeight))
+    
+    /**
+     Given the number of values in `data`, calculates and returns the X offset from the center that an element in `data` should be drawn at.
+     - parameter idx: The index of the element in `data` for which to calculate the X offset from.
+     - parameter totalWidth: The total width of the view that this Line is drawn in.
+     - returns: The x-offset from the center for the element in `data` at index `idx`.
+     */
+    private func getXOffsetFromCenter(idx: Int, totalWidth: CGFloat) -> CGFloat {
+        let xRatio = CGFloat(idx) / (CGFloat(data.onlyPoints().count) - 1)
+        let scaledX = totalWidth * xRatio
+        return scaledX - (totalWidth/2)
     }
     
-    public var body: some View {
-        ZStack {
-            if(self.showFull && self.showBackground){
-                self.closedPath
-                    .fill(LinearGradient(gradient: Gradient(colors: [Colors.GradientUpperBlue, .white]), startPoint: .bottom, endPoint: .top))
-                    .rotationEffect(.degrees(180), anchor: .center)
-                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                    .transition(.opacity)
-                    .animation(.easeIn(duration: 1.6))
-            }
-            self.path
-                .trim(from: 0, to: self.showFull ? 1:0)
-                .stroke(LinearGradient(gradient: gradient.getGradient(), startPoint: .leading, endPoint: .trailing) ,style: StrokeStyle(lineWidth: 3, lineJoin: .round))
-                .rotationEffect(.degrees(180), anchor: .center)
-                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                .animation(Animation.easeOut(duration: 1.2).delay(Double(self.index)*0.4))
-                .onAppear {
-                    self.showFull = true
-            }
-            .onDisappear {
-                self.showFull = false
-            }
-            .drawingGroup()
-            if(self.showIndicator) {
-                IndicatorPoint()
-                    .position(self.getClosestPointOnPath(touchLocation: self.touchLocation))
-                    .rotationEffect(.degrees(180), anchor: .center)
-                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-            }
+    /**
+     Given the min and max values  in `data`, calculates and returns the Y offset from the center that an element in `data` should be drawn at.
+     - parameter idx: The index of the element in `data` for which to calculate the Y offset from.
+     - parameter totalHeight: The total height of the view that this Line is drawn in.
+     - returns: (Optional) The y-offset from the center for the element in `data` at index `idx`.
+     */
+    private func getYOffsetFromCenter(idx: Int, totalHeight: CGFloat) -> CGFloat? {
+        
+        guard let minDouble = data.onlyPoints().min(), let maxDouble = data.onlyPoints().max() else {
+            return nil
+        }
+        
+        let min = CGFloat(minDouble), max = CGFloat(maxDouble)
+        let yDiff = max - min
+        let yHeight = CGFloat(data.onlyPoints()[idx]) - min
+        let yRatio = yHeight / yDiff
+        let scaledY = totalHeight * yRatio
+        return (totalHeight/2) - scaledY
+        
+    }
+    
+    private func path(totalSize: CGSize) -> Path {
+        let points = self.data.onlyPoints()
+        let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
+        if curvedLines {
+            return Path.quadCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
+        } else {
+            return Path.linePathWithPoints(points: points, step: stepSize)
         }
     }
     
-    func getClosestPointOnPath(touchLocation: CGPoint) -> CGPoint {
-        let closest = self.path.point(to: touchLocation.x)
+    private func closedPath(totalSize: CGSize) -> Path {
+        let points = self.data.onlyPoints()
+        let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
+        if curvedLines {
+            return Path.quadClosedCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
+        } else {
+            return Path.closedLinePathWithPoints(points: points, step: stepSize)
+        }
+    }
+    
+    private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
+        let closest = self.path(totalSize: totalSize).point(to: touchLocation.x)
         return closest
     }
     
-}
-
-struct Line_Previews: PreviewProvider {
-    static var previews: some View {
-        GeometryReader{ geometry in
-            Line(data: ChartData(points: [12,-230,10,54]), frame: .constant(geometry.frame(in: .local)), touchLocation: .constant(CGPoint(x: 100, y: 12)), showIndicator: .constant(true), minDataValue: .constant(nil), maxDataValue: .constant(nil))
-        }.frame(width: 320, height: 160)
+    public var body: some View {
+        
+        GeometryReader { gr in
+            
+            ZStack {
+                
+                if(self.showFull && self.showBackground){
+                    self.closedPath(totalSize: gr.size)
+                        .fill(LinearGradient(gradient: Gradient(colors: [Colors.GradientUpperBlue, .white]), startPoint: .bottom, endPoint: .top))
+                        .rotationEffect(.degrees(180), anchor: .center)
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .transition(.opacity)
+                        .animation(.easeIn(duration: 1.6))
+                }
+                
+                self.path(totalSize: gr.size)
+                    .trim(from: 0, to: self.showFull ? 1:0)
+                    .stroke(LinearGradient(gradient: gradient.getGradient(), startPoint: .leading, endPoint: .trailing),
+                            style: StrokeStyle(lineWidth: 3, lineJoin: .round))
+                    .rotationEffect(.degrees(180), anchor: .center)
+                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    .animation(Animation.easeOut(duration: 1.2).delay(Double(self.index)*0.4))
+                    .onAppear {
+                        self.showFull = true
+                    }
+                    .onDisappear {
+                        self.showFull = false
+                    }
+                    .drawingGroup()
+                
+                ForEach(0 ..< data.onlyPoints().count, id: \.self) { idx in
+                    // TO-DO: Handle if return from `getYOffsetFromCenter` is nil
+                    if let y = getYOffsetFromCenter(idx: idx, totalHeight: gr.size.height) {
+                        Circle()
+                            .frame(width: 10, height: 10)
+                            .offset(x: getXOffsetFromCenter(idx: idx, totalWidth: gr.size.width),
+                                    y: y)
+                    }
+                }
+                
+                if(self.showIndicator) {
+                    IndicatorPoint()
+                        .position(self.getClosestPointOnPath(touchLocation: self.touchLocation, totalSize: gr.size))
+                        .rotationEffect(.degrees(180), anchor: .center)
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                }
+                
+            }
+            
+        }
+        
     }
+    
 }

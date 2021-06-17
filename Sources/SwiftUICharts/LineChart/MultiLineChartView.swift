@@ -112,14 +112,13 @@ public struct MultiLineChartView: View {
                     ZStack{
                         ForEach(0..<self.data.count) { i in
                             Line(data: self.data[i],
-                                 frame: .constant(geometry.frame(in: .local)),
+                                 gradient: self.data[i].getGradient(),
+                                 index: i,
+                                 showBackground: false,
                                  touchLocation: self.$touchLocation,
                                  showIndicator: self.$showIndicatorDot,
                                  minDataValue: .constant(self.globalMin),
-                                 maxDataValue: .constant(self.globalMax),
-                                 showBackground: false,
-                                 gradient: self.data[i].getGradient(),
-                                 index: i)
+                                 maxDataValue: .constant(self.globalMax))
                         }
                     }
                 }
@@ -152,13 +151,4 @@ public struct MultiLineChartView: View {
 //        }
 //        return .zero
 //    }
-}
-
-struct MultiWidgetView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            MultiLineChartView(data: [([8,23,54,32,12,37,7,23,43], GradientColors.orange)], title: "Line chart", legend: "Basic")
-                .environment(\.colorScheme, .light)
-        }
-    }
 }
