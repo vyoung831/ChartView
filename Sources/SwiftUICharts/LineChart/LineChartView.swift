@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct LineChartView: View {
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     @ObservedObject var data:ChartData
@@ -149,3 +151,5 @@ struct WidgetView_Previews: PreviewProvider {
         }
     }
 }
+
+#endif

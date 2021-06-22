@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 // MARK: - GradientColor
 
 public struct GradientColor {
@@ -89,3 +91,5 @@ class HapticFeedback {
     }
     #endif
 }
+
+#endif

@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 struct IndicatorPoint: View {
     var body: some View {
         ZStack{
@@ -20,3 +22,5 @@ struct IndicatorPoint: View {
         .shadow(color: Colors.LegendColor, radius: 6, x: 0, y: 6)
     }
 }
+
+#endif

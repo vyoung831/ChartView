@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct Styles {
     public static let lineChartStyleOne = ChartStyle(
         backgroundColor: Color.white,
@@ -142,3 +144,5 @@ public class TestData{
                                                             ("2018 Q4",63150), ("2019 Q1",50900), ("2019 Q2",77550), ("2019 Q3",79600), ("2019 Q4",92550)])
     
 }
+
+#endif

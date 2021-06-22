@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct MultiLineChartView: View {
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     var data:[MultiLineChartData]
@@ -152,3 +154,5 @@ public struct MultiLineChartView: View {
 //        return .zero
 //    }
 }
+
+#endif

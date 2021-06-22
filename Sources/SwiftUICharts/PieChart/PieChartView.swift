@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct PieChartView : View {
     public var data: [Double]
     public var title: String
@@ -81,4 +83,6 @@ struct PieChartView_Previews : PreviewProvider {
         PieChartView(data:[56,78,53,65,54], title: "Title", legend: "Legend")
     }
 }
+#endif
+
 #endif

@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct PieChartRow : View {
     var data: [Double]
     var backgroundColor: Color
@@ -76,4 +78,6 @@ struct PieChartRow_Previews : PreviewProvider {
         }
     }
 }
+#endif
+
 #endif
