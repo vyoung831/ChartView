@@ -10,7 +10,7 @@ import SwiftUI
 public struct MagnifierRect: View {
     
     static let cornerRadius: CGFloat = 12
-    static let width: CGFloat = 80
+    static let width: CGFloat = 60
     
     var valueSpecifier: String
     let padding: EdgeInsets = EdgeInsets(top: 20, leading: 10, bottom: 0, trailing: 10)
@@ -25,7 +25,7 @@ public struct MagnifierRect: View {
             
             VStack {
                 Text(self.x)
-                    .minimumScaleFactor(0.5)
+                    .minimumScaleFactor(0.3)
                     .lineLimit(1)
                 Text("\(self.y, specifier: valueSpecifier)")
             }

@@ -156,9 +156,9 @@ public struct Line: View {
                     // TO-DO: Handle if return from `getYOffsetFromCenter` is nil
                     if let y = getYOffsetFromCenter(idx: idx, totalHeight: gr.size.height) {
                         Circle()
-                            .frame(width: 10, height: 10)
                             .offset(x: getXOffsetFromCenter(idx: idx, totalWidth: gr.size.width),
                                     y: y)
+                            .frame(width: 10, height: 10)
                     }
                 }
                 

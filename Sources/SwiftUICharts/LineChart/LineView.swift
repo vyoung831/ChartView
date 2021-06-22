@@ -112,7 +112,7 @@ public struct LineView: View {
                              minDataValue: .constant(nil),
                              maxDataValue: .constant(nil)
                         )
-                        .frame(width: reader.size.width - Legend.legendOffset,
+                        .frame(width: reader.size.width - Legend.legendOffset - (MagnifierRect.width/2),
                                height: reader.size.height)
                         .offset(x: Legend.legendOffset, y: 0)
                         .onAppear(){
