@@ -105,7 +105,7 @@ public struct Line: View {
         if curvedLines {
             return Path.quadCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
         } else {
-            return Path.linePathWithPoints(points: points, step: stepSize)
+            return Path.straightPath(points: points, size: totalSize)
         }
     }
     
@@ -115,7 +115,7 @@ public struct Line: View {
         if curvedLines {
             return Path.quadClosedCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
         } else {
-            return Path.closedLinePathWithPoints(points: points, step: stepSize)
+            return Path.closedStraightPath(points: points, size: totalSize)
         }
     }
     
