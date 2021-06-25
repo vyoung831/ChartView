@@ -119,9 +119,34 @@ public struct Line: View {
         }
     }
     
+    /**
+     Finds and returns the point in `data` that's horizontally closest to a touch gesture.
+     - parameter touchLocation: Location of touch gesture.
+     - parameter totalSize: The toal size of the touch gesture's parent View.
+     - returns: The point in `data` that's horizontally closest to the touch gesture.
+     */
     private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
-        let closest = self.path(totalSize: totalSize).point(to: touchLocation.x)
-        return closest
+        
+        // TO-DO: Update functions to protect against division by 0
+        // TO-DO: Return optional or signal to caller that func found nil in required optionals
+        let points = self.data.onlyPoints()
+        guard let min = points.min(), let max = points.max() else { return CGPoint() }
+        let diff = CGFloat(max - min)
+        let stepWidth: CGFloat = totalSize.width / CGFloat(points.count-1) // The horizontal space between each pair of points.
+        let stepHeight: CGFloat = totalSize.height / diff // The vertical space that each y increment of +1 takes up.
+        
+        // Find the x-distance from each point to the touch gesture location.
+        let horizontalDistances = points.enumerated().map({ index, point in
+            abs( (CGFloat(index) * stepWidth) - touchLocation.x)
+        })
+        
+        // TO-DO: Return optional or signal to caller that func found nil in required optionals
+        guard let minDistance = horizontalDistances.min(),
+              let idx = horizontalDistances.firstIndex(of: minDistance) else {
+            return CGPoint()
+        }
+        return CGPoint(x: CGFloat(idx) * stepWidth, y: (CGFloat(points[idx] - min) * stepHeight))
+        
     }
     
     public var body: some View {
