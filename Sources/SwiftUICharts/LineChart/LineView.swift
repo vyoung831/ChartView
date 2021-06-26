@@ -25,7 +25,7 @@ public struct LineView: View {
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     @State private var showLegend = false
     @State private var dragLocation: CGPoint = .zero
-    @State private var indicatorLocation: CGPoint = .zero
+    @State private var touchLocation: CGPoint = .zero
     @State private var opacity: Double = 0
     
     @State private var currentX: String = ""
@@ -96,7 +96,7 @@ public struct LineView: View {
                         Line(data: self.data,
                              gradient: self.style.gradientColor,
                              showBackground: false,
-                             touchLocation: self.$indicatorLocation,
+                             touchLocation: self.$touchLocation,
                              showIndicator: self.$hideHorizontalLines,
                              minDataValue: .constant(nil),
                              maxDataValue: .constant(nil)
@@ -130,7 +130,8 @@ public struct LineView: View {
                                 self.hideHorizontalLines = true
                                 
                                 let offsettedX = value.location.x - Legend.legendOffset
-                                self.indicatorLocation = CGPoint(x: offsettedX, y: value.location.y)
+                                self.touchLocation = CGPoint(x: offsettedX, y: value.location.y)
+                                
                             })
                             .onEnded({ value in
                                 self.opacity = 0
