@@ -51,26 +51,37 @@ extension Path {
         return totalLength
     }
     
-    func trimmedPath(for percent: CGFloat) -> Path {
-        // percent difference between points
-        let boundsDistance: CGFloat = 0.001
-        let completion: CGFloat = 1 - boundsDistance
+    /**.
+     Returns a partial copy of this Path centered at `at`% of this Path's total distance , including linearly interpolated points at -/+0.05% of the path's distance.
+     - parameter at: A number between 0 and 1 (non-inclusive) that indicates the percent distance of the path to center the partial copy at.
+     - returns: A partial copy of this Path containing the linearly interpolated Path starting and ending at  -/+0.05% of `at`.
+     */
+    func trimmedPath(at percent: CGFloat) -> Path {
         
-        let pct = percent > 1 ? 0 : (percent < 0 ? 1 : percent)
+        // `boundsDistance` defines the percent delta
+        let trimmedPathDistance: CGFloat = 0.001
+        let upperBounds: CGFloat = 1 - trimmedPathDistance
+        let lowerBounds: CGFloat = trimmedPathDistance
         
-        let start = pct > completion ? completion : pct - boundsDistance
-        let end = pct > completion ? 1 : pct + boundsDistance
-        return trimmedPath(from: start, to: end)
+        let center = percent > 1 ? 0 : (percent < 0 ? 1 : percent)
+        if center >= upperBounds {
+            return trimmedPath(from: upperBounds, to: 1)
+        } else if center <= lowerBounds {
+            return trimmedPath(from: 0, to: lowerBounds)
+        } else {
+            return trimmedPath(from: center - (trimmedPathDistance/2), to: center + (trimmedPathDistance/2))
+        }
+        
     }
     
     func point(for percent: CGFloat) -> CGPoint {
-        let path = trimmedPath(for: percent)
+        let path = trimmedPath(at: percent)
         return CGPoint(x: path.boundingRect.midX, y: path.boundingRect.midY)
     }
     
-    func point(to maxX: CGFloat) -> CGPoint {
-        let sub = length(until: maxX)
-        let percent = sub / length
+    func point(until maxX: CGFloat) -> CGPoint {
+        let subpathLength = length(until: maxX)
+        let percent = subpathLength / length
         return point(for: percent)
     }
     
