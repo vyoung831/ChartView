@@ -52,13 +52,13 @@ extension Path {
     }
     
     /**.
-     Returns a partial copy of this Path centered at `at`% of this Path's total distance , including linearly interpolated points at -/+0.05% of the path's distance.
+     Returns a partial copy of this Path centered at `at`% of this Path's total distance from the start, including linearly interpolated points at -/+0.05% of the path's distance.
      - parameter at: A number between 0 and 1 (non-inclusive) that indicates the percent distance of the path to center the partial copy at.
      - returns: A partial copy of this Path containing the linearly interpolated Path starting and ending at  -/+0.05% of `at`.
      */
     func trimmedPath(at percent: CGFloat) -> Path {
         
-        // `boundsDistance` defines the percent delta
+        // `trimmedPathDistance` defines the percent delta
         let trimmedPathDistance: CGFloat = 0.001
         let upperBounds: CGFloat = 1 - trimmedPathDistance
         let lowerBounds: CGFloat = trimmedPathDistance
@@ -74,7 +74,13 @@ extension Path {
         
     }
     
-    func point(for percent: CGFloat) -> CGPoint {
+    /**
+     Returns estimated coordinates of a point on this path.
+     Instead of finding the exact coordinates, a partial copy of this path is obtained (centered at `at`% of this Path's total distance) and the center of that partial Path's bounding rectangle is returned.
+     - parameter at: The percent distance from the start of the Path at which to get the estimated point's coordinates.
+     - returns: The center of the rectangle that bounds the partial path returned by `trimmedPath(at:)`.
+     */
+    func point(at percent: CGFloat) -> CGPoint {
         let path = trimmedPath(at: percent)
         return CGPoint(x: path.boundingRect.midX, y: path.boundingRect.midY)
     }
@@ -82,7 +88,7 @@ extension Path {
     func point(until maxX: CGFloat) -> CGPoint {
         let subpathLength = length(until: maxX)
         let percent = subpathLength / length
-        return point(for: percent)
+        return point(at: percent)
     }
     
     /**
