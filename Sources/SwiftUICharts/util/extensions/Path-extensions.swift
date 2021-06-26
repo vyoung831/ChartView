@@ -69,43 +69,47 @@ extension Path {
     }
     
     func point(to maxX: CGFloat) -> CGPoint {
-        let total = length
-        let sub = length(to: maxX)
-        let percent = sub / total
+        let sub = length(until: maxX)
+        let percent = sub / length
         return point(for: percent)
     }
     
-    func length(to maxX: CGFloat) -> CGFloat {
+    /**
+     Iterates over Path Elements and finds the total length of this Path until (and including) the first element whose x-value exceeds the provided value.
+     If all Elements' x-values are less than `until`, this function returns the total length of this Path.
+     - parameter until: The x-value after which to stop counting the length to more elements.
+     - returns: The total length of this Path up until (inclusive) the first Element whose x-value exceeds `until`.
+     */
+    func length(until maxX: CGFloat) -> CGFloat {
+
         var ret: CGFloat = 0.0
-        var start: CGPoint?
         var point = CGPoint.zero
         var finished = false
         
         forEach { ele in
-            if finished {
-                return
-            }
+            
+            // Stop processing for rest of Path.Elements
+            if finished { return }
+            
             switch ele {
             case .move(let to):
                 if to.x > maxX {
                     finished = true
                     return
                 }
-                if start == nil {
-                    start = to
-                }
                 point = to
-                break
+                return
             case .line(let to):
                 if to.x > maxX {
                     finished = true
-                    ret += point.line(to: to, x: maxX)
+                    ret += point.distanceToPointOnLine(dest: to, x: maxX)
                     return
                 }
                 ret += point.distance(to: to)
                 point = to
-                break
+                return
             case .quadCurve(let to, let control):
+                // TO-DO: Review code for this case
                 if to.x > maxX {
                     finished = true
                     ret += point.quadCurve(to: to, control: control, x: maxX)
@@ -113,8 +117,9 @@ extension Path {
                 }
                 ret += point.quadCurve(to: to, control: control)
                 point = to
-                break
+                return
             case .curve(let to, let control1, let control2):
+                // TO-DO: Review code for this case
                 if to.x > maxX {
                     finished = true
                     ret += point.curve(to: to, control1: control1, control2: control2, x: maxX)
@@ -122,8 +127,9 @@ extension Path {
                 }
                 ret += point.curve(to: to, control1: control1, control2: control2)
                 point = to
-                break
+                return
             case .closeSubpath:
+                // TO-DO: Review code for this case
                 fatalError("Can't include closeSubpath")
             }
         }
@@ -217,7 +223,7 @@ extension Path {
             return path
         }
         let offset = globalOffset ?? points.min()!
-//        guard let offset = points.min() else { return path }
+        //        guard let offset = points.min() else { return path }
         
         // Draw the path
         var p1 = CGPoint(x: 0, y: CGFloat(points[0]-offset)*step.y)
@@ -238,8 +244,8 @@ extension Path {
             return path
         }
         let offset = globalOffset ?? points.min()!
-
-//        guard let offset = points.min() else { return path }
+        
+        //        guard let offset = points.min() else { return path }
         path.move(to: .zero)
         var p1 = CGPoint(x: 0, y: CGFloat(points[0]-offset)*step.y)
         path.addLine(to: p1)

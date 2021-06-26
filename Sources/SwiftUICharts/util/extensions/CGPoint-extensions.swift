@@ -9,10 +9,16 @@ import SwiftUI
 
 extension CGPoint {
     
-    func point(to: CGPoint, x: CGFloat) -> CGPoint {
-        let a = (to.y - self.y) / (to.x - self.x)
-        let y = self.y + (x - self.x) * a
-        return CGPoint(x: x, y: y)
+    /**
+     Given the line between this point and another CGPoint, returns the point that exists on that line at the specified x-value.
+     - parameter dest: The other CGPoint that forms the line with this CGPoint.
+     - parameter targetX: The x-value for which to get the point on the line.
+     - returns: Point on the line between `self` and `dest`, at the specified x-value.
+     */
+    func getPointOnLine(dest: CGPoint, targetX: CGFloat) -> CGPoint {
+        let slope = (dest.y - self.y) / (dest.x - self.x)
+        let y = self.y + (targetX - self.x) * slope
+        return CGPoint(x: targetX, y: y)
     }
     
     /**
@@ -24,8 +30,14 @@ extension CGPoint {
         return sqrt((pow(self.x - to.x, 2) + pow(self.y - to.y, 2)))
     }
     
-    func line(to: CGPoint, x: CGFloat) -> CGFloat {
-        distance(to: point(to: to, x: x))
+    /**
+     Given the line between this point and another CGPoint, gets the point that exists on that line at the specified x-value, and finds the distance between this point and that point.
+     - parameter dest: The other CGPoint that forms the line with this CGPoint.
+     - parameter x: The x-value of the point on the line to calculate the distance to (from this point).
+     - returns: The distance between this CGPoint and another CGPoint (The point at x-value `x` on the line formed between this point and `dest`).
+     */
+    func distanceToPointOnLine(dest: CGPoint, x: CGFloat) -> CGFloat {
+        distance(to: getPointOnLine(dest: dest, targetX: x))
     }
     
     func quadCurve(to: CGPoint, control: CGPoint) -> CGFloat {
@@ -56,7 +68,7 @@ extension CGPoint {
             if a.x >= x {
                 return dist
             } else if b.x > x {
-                dist += a.line(to: b, x: x)
+                dist += a.distanceToPointOnLine(dest: b, x: x)
                 return dist
             } else if b.x == x {
                 dist += a.distance(to: b)
@@ -106,7 +118,7 @@ extension CGPoint {
             if a.x >= x {
                 return dist
             } else if b.x > x {
-                dist += a.line(to: b, x: x)
+                dist += a.distanceToPointOnLine(dest: b, x: x)
                 return dist
             } else if b.x == x {
                 dist += a.distance(to: b)
