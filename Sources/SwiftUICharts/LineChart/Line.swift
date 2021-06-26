@@ -125,7 +125,7 @@ public struct Line: View {
      - parameter totalSize: The toal size of the touch gesture's parent View.
      - returns: The point in `data` that's horizontally closest to the touch gesture.
      */
-    private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
+    private func getClosestPointInData(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
         
         // TO-DO: Update functions to protect against division by 0
         // TO-DO: Return optional or signal to caller that func found nil in required optionals
@@ -147,6 +147,16 @@ public struct Line: View {
         }
         return CGPoint(x: CGFloat(idx) * stepWidth, y: (CGFloat(points[idx] - min) * stepHeight))
         
+    }
+    
+    /**
+     Returns the estimated coordinates of point on the line closest to a touch location's x-value.
+     - parameter touchLocation: Location of touch gesture.
+     - parameter totalSize: The toal size of the touch gesture's parent View.
+     - returns: The point on the line that's horizontally closest to the touch gesture.
+     */
+    private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
+        return self.path(totalSize: totalSize).point(until: touchLocation.x)
     }
     
     public var body: some View {
@@ -190,10 +200,18 @@ public struct Line: View {
                 }
                 
                 if(self.showIndicator) {
-                    IndicatorPoint()
+                    
+                    Circle()
+                        .frame(width: 10, height: 10)
                         .position(self.getClosestPointOnPath(touchLocation: self.touchLocation, totalSize: gr.size))
                         .rotationEffect(.degrees(180), anchor: .center)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    
+                    IndicatorPoint()
+                        .position(self.getClosestPointInData(touchLocation: self.touchLocation, totalSize: gr.size))
+                        .rotationEffect(.degrees(180), anchor: .center)
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    
                 }
                 
             }
