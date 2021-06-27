@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct Line: View {
     
     @ObservedObject var data: ChartData
@@ -219,3 +221,5 @@ public struct Line: View {
     }
     
 }
+
+#endif

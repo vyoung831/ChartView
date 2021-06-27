@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 struct Legend: View {
     
     @Environment(\.colorScheme) var colorScheme: ColorScheme
@@ -115,3 +117,5 @@ struct Legend: View {
     }
     
 }
+
+#endif

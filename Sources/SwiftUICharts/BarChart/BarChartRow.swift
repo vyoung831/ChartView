@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct BarChartRow : View {
     var data: [Double]
     var accentColor: Color
@@ -54,4 +56,6 @@ struct ChartRow_Previews : PreviewProvider {
         }
     }
 }
+#endif
+
 #endif

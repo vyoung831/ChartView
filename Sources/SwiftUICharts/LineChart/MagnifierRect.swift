@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct MagnifierRect: View {
     
     static let cornerRadius: CGFloat = 12
@@ -51,3 +53,5 @@ public struct MagnifierRect: View {
     }
     
 }
+
+#endif

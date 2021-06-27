@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public class ChartStyle {
     public var backgroundColor: Color
     public var accentColor: Color
@@ -44,3 +46,5 @@ public class ChartStyle {
         self.dropShadowColor = Color.gray
     }
 }
+
+#endif

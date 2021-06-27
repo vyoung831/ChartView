@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct BarChartCell : View {
     var value: Double
     var index: Int = 0
@@ -41,4 +43,6 @@ struct ChartCell_Previews : PreviewProvider {
         BarChartCell(value: Double(0.75), width: 320, numberOfDataPoints: 12, accentColor: Colors.OrangeStart, gradient: nil, touchLocation: .constant(-1))
     }
 }
+#endif
+
 #endif
