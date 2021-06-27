@@ -125,12 +125,15 @@ public struct Line: View {
      - parameter totalSize: The toal size of the touch gesture's parent View.
      - returns: The point in `data` that's horizontally closest to the touch gesture.
      */
-    private func getClosestPointInData(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
-        
+    static func getClosestPointInData(data: ChartData, touchLocation: CGPoint, totalSize: CGSize) -> (coordinates: CGPoint,
+                                                                                                      x: String,
+                                                                                                      y: Double) {
         // TO-DO: Update functions to protect against division by 0
         // TO-DO: Return optional or signal to caller that func found nil in required optionals
-        let points = self.data.onlyPoints()
-        guard let min = points.min(), let max = points.max() else { return CGPoint() }
+        let points = data.onlyPoints()
+        guard let min = points.min(), let max = points.max() else {
+            return (CGPoint(), "", 0)
+        }
         let diff = CGFloat(max - min)
         let stepWidth: CGFloat = totalSize.width / CGFloat(points.count-1) // The horizontal space between each pair of points.
         let stepHeight: CGFloat = totalSize.height / diff // The vertical space that each y increment of +1 takes up.
@@ -143,9 +146,12 @@ public struct Line: View {
         // TO-DO: Return optional or signal to caller that func found nil in required optionals
         guard let minDistance = horizontalDistances.min(),
               let idx = horizontalDistances.firstIndex(of: minDistance) else {
-            return CGPoint()
+            return (CGPoint(), "", 0)
         }
-        return CGPoint(x: CGFloat(idx) * stepWidth, y: (CGFloat(points[idx] - min) * stepHeight))
+        
+        return (CGPoint(x: CGFloat(idx) * stepWidth, y: (CGFloat(points[idx] - min) * stepHeight)),
+                data.points[idx].x,
+                data.points[idx].y)
         
     }
     
@@ -208,7 +214,9 @@ public struct Line: View {
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                     
                     IndicatorPoint()
-                        .position(self.getClosestPointInData(touchLocation: self.touchLocation, totalSize: gr.size))
+                        .position(Line.getClosestPointInData(data: self.data,
+                                                             touchLocation: self.touchLocation,
+                                                             totalSize: gr.size).coordinates)
                         .rotationEffect(.degrees(180), anchor: .center)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                     

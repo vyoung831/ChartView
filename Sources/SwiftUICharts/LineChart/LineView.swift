@@ -65,20 +65,20 @@ public struct LineView: View {
             VStack(alignment: .leading, spacing: 8) {
                 
                 Group{
-
+                    
                     if let titleString = self.title {
                         Text(titleString)
                             .font(.title)
                             .bold()
                             .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
                     }
-
+                    
                     if let legendString = self.legend {
                         Text(legendString)
                             .font(.callout)
                             .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
                     }
-
+                    
                 }
                 .offset(x: 0, y: 20)
                 
@@ -132,7 +132,16 @@ public struct LineView: View {
                                 self.hideHorizontalLines = true
                                 
                                 let offsettedX = value.location.x - Legend.legendOffset
+                                
                                 self.touchLocation = CGPoint(x: offsettedX, y: value.location.y)
+                                let closestPoint = Line.getClosestPointInData(data: self.data,
+                                                                              touchLocation: self.touchLocation,
+                                                                              totalSize: CGSize(width: geometry.frame(in: .local).size.width -
+                                                                                                    Legend.legendOffset -
+                                                                                                    MagnifierRect.width/2,
+                                                                                                height: zStackHeight))
+                                self.currentX = closestPoint.x
+                                self.currentY = closestPoint.y
                                 
                             })
                             .onEnded({ value in
