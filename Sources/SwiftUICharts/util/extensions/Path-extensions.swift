@@ -53,20 +53,19 @@ extension Path {
     
     /**.
      Returns a partial copy of this Path centered at `at`% of this Path's total distance from the start, including linearly interpolated points at -/+0.05% of the path's distance.
-     - parameter at: A number between 0 and 1 (non-inclusive) that indicates the percent distance of the path to center the partial copy at.
+     - parameter at: A number from 0 to 1 (inclusive) that indicates the percent distance of the path to center the partial copy at.
      - returns: A partial copy of this Path containing the linearly interpolated Path starting and ending at  -/+0.05% of `at`.
      */
     func trimmedPath(at percent: CGFloat) -> Path {
         
-        // `trimmedPathDistance` defines the percent delta
         let trimmedPathDistance: CGFloat = 0.001
         let upperBounds: CGFloat = 1 - trimmedPathDistance
         let lowerBounds: CGFloat = trimmedPathDistance
         
-        let center = percent > 1 ? 0 : (percent < 0 ? 1 : percent)
-        if center >= upperBounds {
+        let center = percent > 1 ? 1 : (percent < 0 ? 0 : percent)
+        if center >= upperBounds + (trimmedPathDistance/2) {
             return trimmedPath(from: upperBounds, to: 1)
-        } else if center <= lowerBounds {
+        } else if center <= lowerBounds - (trimmedPathDistance/2) {
             return trimmedPath(from: 0, to: lowerBounds)
         } else {
             return trimmedPath(from: center - (trimmedPathDistance/2), to: center + (trimmedPathDistance/2))
@@ -76,26 +75,24 @@ extension Path {
     
     /**
      Returns estimated coordinates of a point on this path.
-     Instead of finding the exact coordinates, a partial copy of this path is obtained (centered at `at`% of this Path's total distance) and the center of that partial Path's bounding rectangle is returned.
-     - parameter at: The percent distance from the start of the Path at which to get the estimated point's coordinates.
+     Instead of finding the exact coordinates, a partial copy of this path is obtained (centered at the provided x-value) and the center of that partial Path's bounding rectangle is returned.
+     - parameter at: The x-value for which to get the estimated coordinates of the point on the line.
      - returns: The center of the rectangle that bounds the partial path returned by `trimmedPath(at:)`.
      */
-    func point(at percent: CGFloat) -> CGPoint {
-        let path = trimmedPath(at: percent)
-        return CGPoint(x: path.boundingRect.midX, y: path.boundingRect.midY)
-    }
-    
-    func point(until maxX: CGFloat) -> CGPoint {
+    func point(at maxX: CGFloat) -> CGPoint {
         let subpathLength = length(until: maxX)
         let percent = subpathLength / length
-        return point(at: percent)
+        
+        let trimmedSubPath = trimmedPath(at: percent)
+        return CGPoint(x: trimmedSubPath.boundingRect.midX,
+                       y: trimmedSubPath.boundingRect.midY)
     }
     
     /**
-     Iterates over Path Elements and finds the total length of this Path until (and including) the first element whose x-value exceeds the provided value.
-     If all Elements' x-values are less than `until`, this function returns the total length of this Path.
-     - parameter until: The x-value after which to stop counting the length to more elements.
-     - returns: The total length of this Path up until (inclusive) the first Element whose x-value exceeds `until`.
+     Iterates over Path Elements and finds the total length of this Path up to the provided max x-value.
+     This function assumes that the x-values of this Path's elements are in ascending order.
+     - parameter until: The x-value to count the length of this Path up until.
+     - returns: The total length of this Path up until (inclusive) `until`.
      */
     func length(until maxX: CGFloat) -> CGFloat {
 
@@ -162,7 +159,7 @@ extension Path {
     
     /**
      Returns a non-curved, non-closed path that takes up the entirety of the provided size, represented as a straight line graph.
-     - parameter points: Y-values of points to draw.
+     - parameter points: y-values of points to draw.
      - parameter size: The total size of the parent View that the Path is to be drawn in.
      - returns: Non-curved path that takes up the entire size of the parent View, with even horizontal spacing.
      */
@@ -197,9 +194,9 @@ extension Path {
      - If all points are non-negative, the path is closed at the bottom of the View.
      - If all points are negative, the path is closed at the top of the View.
      - If points are both negative and non-negative, the path is closed at the x-axis.
-     - parameter points: Y-values of points to draw.
+     - parameter points: y-values of points to draw.
      - parameter size: The total size of the parent View that the Path is to be drawn in.
-     - returns: Path returned by `Path.straightPath()`, closed at a height determined by `points`' values.
+     - returns: Path returned by `Path.straightPath()`, closed at a height determined by the values in `points`.
      */
     static func closedStraightPath(points: [Double], size: CGSize) -> Path {
         

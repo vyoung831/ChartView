@@ -99,36 +99,27 @@ public struct Line: View {
         
     }
     
-    private func path(totalSize: CGSize) -> Path {
-        let points = self.data.onlyPoints()
-        let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
-        if curvedLines {
-            return Path.quadCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
-        } else {
-            return Path.straightPath(points: points, size: totalSize)
-        }
-    }
-    
-    private func closedPath(totalSize: CGSize) -> Path {
-        let points = self.data.onlyPoints()
-        let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
-        if curvedLines {
-            return Path.quadClosedCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
-        } else {
-            return Path.closedStraightPath(points: points, size: totalSize)
-        }
+    /**
+     Given a touch location, returns the estimated coordinates of the point on the line at the touch gesture's x-location.
+     - parameter touchLocation: Location of touch gesture.
+     - parameter totalSize: The total size of the touch gesture's parent View.
+     - returns: The point on the line that's horizontally closest to the touch gesture.
+     */
+    private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
+        return self.path(totalSize: totalSize).point(at: touchLocation.x)
     }
     
     /**
      Finds and returns the point in `data` that's horizontally closest to a touch gesture.
+     - parameter data: The `ChartData` that is supplied to the Line.
      - parameter touchLocation: Location of touch gesture.
-     - parameter totalSize: The toal size of the touch gesture's parent View.
+     - parameter totalSize: The total size of the touch gesture's parent View (and that the Line is drawn in).
      - returns: The point in `data` that's horizontally closest to the touch gesture.
      */
     static func getClosestPointInData(data: ChartData, touchLocation: CGPoint, totalSize: CGSize) -> (coordinates: CGPoint,
                                                                                                       x: String,
                                                                                                       y: Double) {
-        // TO-DO: Update functions to protect against division by 0
+        // TO-DO: Update function to protect against division by 0
         // TO-DO: Return optional or signal to caller that func found nil in required optionals
         let points = data.onlyPoints()
         guard let min = points.min(), let max = points.max() else {
@@ -156,14 +147,24 @@ public struct Line: View {
         
     }
     
-    /**
-     Returns the estimated coordinates of point on the line closest to a touch location's x-value.
-     - parameter touchLocation: Location of touch gesture.
-     - parameter totalSize: The toal size of the touch gesture's parent View.
-     - returns: The point on the line that's horizontally closest to the touch gesture.
-     */
-    private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
-        return self.path(totalSize: totalSize).point(until: touchLocation.x)
+    private func path(totalSize: CGSize) -> Path {
+        let points = self.data.onlyPoints()
+        let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
+        if curvedLines {
+            return Path.quadCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
+        } else {
+            return Path.straightPath(points: points, size: totalSize)
+        }
+    }
+    
+    private func closedPath(totalSize: CGSize) -> Path {
+        let points = self.data.onlyPoints()
+        let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
+        if curvedLines {
+            return Path.quadClosedCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
+        } else {
+            return Path.closedStraightPath(points: points, size: totalSize)
+        }
     }
     
     public var body: some View {
