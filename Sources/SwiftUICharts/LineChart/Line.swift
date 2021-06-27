@@ -134,6 +134,7 @@ public struct Line: View {
         guard let min = points.min(), let max = points.max() else {
             return (CGPoint(), "", 0)
         }
+
         let diff = CGFloat(max - min)
         let stepWidth: CGFloat = totalSize.width / CGFloat(points.count-1) // The horizontal space between each pair of points.
         let stepHeight: CGFloat = totalSize.height / diff // The vertical space that each y increment of +1 takes up.

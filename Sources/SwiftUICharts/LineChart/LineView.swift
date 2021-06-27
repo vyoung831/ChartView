@@ -65,20 +65,20 @@ public struct LineView: View {
             VStack(alignment: .leading, spacing: 8) {
                 
                 Group{
-                    
+
                     if let titleString = self.title {
                         Text(titleString)
                             .font(.title)
                             .bold()
                             .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
                     }
-                    
+
                     if let legendString = self.legend {
                         Text(legendString)
                             .font(.callout)
                             .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
                     }
-                    
+
                 }
                 .offset(x: 0, y: 20)
                 
