@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+#if os(iOS) || os(watchOS)
+
 public struct BarChartView : View {
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     private var data: ChartData
@@ -30,10 +32,12 @@ public struct BarChartView : View {
             }
         }
     }
+    
     var isFullWidth:Bool {
         return self.formSize == ChartForm.large
     }
-    public init(data:ChartData, title: String, legend: String? = nil, style: ChartStyle = Styles.barChartStyleOrangeLight, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, cornerImage:Image? = Image(systemName: "waveform.path.ecg"), valueSpecifier: String? = "%.1f"){
+    
+    public init(data:ChartData, title: String, legend: String? = nil, style: ChartStyle = Styles.barChartStyleOrangeLight, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, cornerImage:Image? = Image(systemName: "waveform.path.ecg"), valueSpecifier: String? = "%.1f") {
         self.data = data
         self.title = title
         self.legend = legend
@@ -95,22 +99,22 @@ public struct BarChartView : View {
                 maxWidth: self.isFullWidth ? .infinity : self.formSize.width,
                 minHeight:self.formSize.height,
                 maxHeight:self.formSize.height)
-            .gesture(DragGesture()
-                .onChanged({ value in
-                    self.touchLocation = value.location.x/self.formSize.width
-                    self.showValue = true
-                    self.currentValue = self.getCurrentValue()?.1 ?? 0
-                    if(self.data.valuesGiven && self.formSize == ChartForm.medium) {
-                        self.showLabelValue = true
-                    }
-                })
-                .onEnded({ value in
-                    self.showValue = false
-                    self.showLabelValue = false
-                    self.touchLocation = -1
-                })
+        .gesture(DragGesture()
+                    .onChanged({ value in
+                        self.touchLocation = value.location.x/self.formSize.width
+                        self.showValue = true
+                        self.currentValue = self.getCurrentValue()?.1 ?? 0
+                        if(self.data.valuesGiven && self.formSize == ChartForm.medium) {
+                            self.showLabelValue = true
+                        }
+                    })
+                    .onEnded({ value in
+                        self.showValue = false
+                        self.showLabelValue = false
+                        self.touchLocation = -1
+                    })
         )
-            .gesture(TapGesture()
+        .gesture(TapGesture()
         )
     }
     
@@ -135,3 +139,16 @@ public struct BarChartView : View {
         return self.data.points[index]
     }
 }
+
+#if DEBUG
+struct ChartView_Previews : PreviewProvider {
+    static var previews: some View {
+        BarChartView(data: TestData.values ,
+                     title: "Model 3 sales",
+                     legend: "Quarterly",
+                     valueSpecifier: "%.0f")
+    }
+}
+#endif
+
+#endif
