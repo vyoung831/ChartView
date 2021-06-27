@@ -20,11 +20,14 @@ public struct LineView: View {
     public var darkModeStyle: ChartStyle
     public var valueSpecifier: String
     
+    // Constants for the zStack that the Legend and Line are drawn in.
+    let zStackHeight: CGFloat = 240
+    let zStackOffset: CGFloat = 40
+    
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     @State private var showLegend = false
     @State private var dragLocation: CGPoint = .zero
-    @State private var indicatorLocation: CGPoint = .zero
-    @State private var closestPoint: CGPoint = .zero
+    @State private var touchLocation: CGPoint = .zero
     @State private var opacity: Double = 0
     
     @State private var currentX: String = ""
@@ -57,20 +60,6 @@ public struct LineView: View {
         self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
     }
     
-    func getClosestDataPoint(toPoint: CGPoint, width:CGFloat, height: CGFloat) -> CGPoint {
-        let points = self.data.onlyPoints()
-        let stepWidth: CGFloat = width / CGFloat(points.count-1)
-        let stepHeight: CGFloat = height / CGFloat(points.max()! + points.min()!)
-        
-        let index:Int = Int(floor((toPoint.x-15)/stepWidth))
-        if (index >= 0 && index < points.count){
-            self.currentX = self.data.points[index].x
-            self.currentY = points[index]
-            return CGPoint(x: CGFloat(index)*stepWidth, y: CGFloat(points[index])*stepHeight)
-        }
-        return .zero
-    }
-    
     public var body: some View {
         GeometryReader{ geometry in
             VStack(alignment: .leading, spacing: 8) {
@@ -93,7 +82,7 @@ public struct LineView: View {
                 }
                 .offset(x: 0, y: 20)
                 
-                ZStack{
+                ZStack {
                     GeometryReader{ reader in
                         
                         Rectangle()
@@ -109,12 +98,12 @@ public struct LineView: View {
                         Line(data: self.data,
                              gradient: self.style.gradientColor,
                              showBackground: false,
-                             touchLocation: self.$indicatorLocation,
+                             touchLocation: self.$touchLocation,
                              showIndicator: self.$hideHorizontalLines,
                              minDataValue: .constant(nil),
                              maxDataValue: .constant(nil)
                         )
-                        .frame(width: reader.size.width - Legend.legendOffset,
+                        .frame(width: reader.size.width - Legend.legendOffset - (MagnifierRect.width/2),
                                height: reader.size.height)
                         .offset(x: Legend.legendOffset, y: 0)
                         .onAppear(){
@@ -125,8 +114,8 @@ public struct LineView: View {
                         }
                         
                     }
-                    .frame(width: geometry.frame(in: .local).size.width, height: 240)
-                    .offset(x: 0, y: 40 )
+                    .frame(width: geometry.frame(in: .local).size.width, height: zStackHeight)
+                    .offset(y: self.zStackOffset)
                     
                     MagnifierRect(valueSpecifier: self.valueSpecifier,
                                   x: self.$currentX,
@@ -135,14 +124,26 @@ public struct LineView: View {
                         .offset(x: self.dragLocation.x - geometry.frame(in: .local).size.width/2, y: 36)
                         .frame(width: MagnifierRect.width, height: 260)
                 }
-                .frame(width: geometry.frame(in: .local).size.width, height: 240)
+                .frame(width: geometry.frame(in: .local).size.width, height: zStackHeight)
                 .gesture(DragGesture()
                             .onChanged({ value in
                                 self.dragLocation = value.location
-                                self.indicatorLocation = CGPoint(x: max(value.location.x-30,0), y: 32)
                                 self.opacity = 1
-                                self.closestPoint = self.getClosestDataPoint(toPoint: value.location, width: geometry.frame(in: .local).size.width-30, height: 240)
                                 self.hideHorizontalLines = true
+                                
+                                let offsettedX = value.location.x - Legend.legendOffset
+                                
+                                self.touchLocation = CGPoint(x: offsettedX, y: value.location.y)
+                                let closestPoint =
+                                    Line.getClosestPointInData(data: self.data,
+                                                               touchLocation: self.touchLocation,
+                                                               totalSize: CGSize(width: geometry.frame(in: .local).size.width
+                                                                                    - Legend.legendOffset
+                                                                                    - MagnifierRect.width/2,
+                                                                                 height: zStackHeight))
+                                self.currentX = closestPoint.x
+                                self.currentY = closestPoint.y
+                                
                             })
                             .onEnded({ value in
                                 self.opacity = 0

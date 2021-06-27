@@ -99,13 +99,61 @@ public struct Line: View {
         
     }
     
+    /**
+     Given a touch location, returns the estimated coordinates of the point on the line at the touch gesture's x-location.
+     - parameter touchLocation: Location of touch gesture.
+     - parameter totalSize: The total size of the touch gesture's parent View.
+     - returns: The point on the line that's horizontally closest to the touch gesture.
+     */
+    private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
+        return self.path(totalSize: totalSize).point(at: touchLocation.x)
+    }
+    
+    /**
+     Finds and returns the point in `data` that's horizontally closest to a touch gesture.
+     - parameter data: The `ChartData` that is supplied to the Line.
+     - parameter touchLocation: Location of touch gesture.
+     - parameter totalSize: The total size of the touch gesture's parent View (and that the Line is drawn in).
+     - returns: The point in `data` that's horizontally closest to the touch gesture.
+     */
+    static func getClosestPointInData(data: ChartData, touchLocation: CGPoint, totalSize: CGSize) -> (coordinates: CGPoint,
+                                                                                                      x: String,
+                                                                                                      y: Double) {
+        // TO-DO: Update function to protect against division by 0
+        // TO-DO: Return optional or signal to caller that func found nil in required optionals
+        let points = data.onlyPoints()
+        guard let min = points.min(), let max = points.max() else {
+            return (CGPoint(), "", 0)
+        }
+
+        let diff = CGFloat(max - min)
+        let stepWidth: CGFloat = totalSize.width / CGFloat(points.count-1) // The horizontal space between each pair of points.
+        let stepHeight: CGFloat = totalSize.height / diff // The vertical space that each y increment of +1 takes up.
+        
+        // Find the x-distance from each point to the touch gesture location.
+        let horizontalDistances = points.enumerated().map({ index, point in
+            abs( (CGFloat(index) * stepWidth) - touchLocation.x)
+        })
+        
+        // TO-DO: Return optional or signal to caller that func found nil in required optionals
+        guard let minDistance = horizontalDistances.min(),
+              let idx = horizontalDistances.firstIndex(of: minDistance) else {
+            return (CGPoint(), "", 0)
+        }
+        
+        return (CGPoint(x: CGFloat(idx) * stepWidth, y: (CGFloat(points[idx] - min) * stepHeight)),
+                data.points[idx].x,
+                data.points[idx].y)
+        
+    }
+    
     private func path(totalSize: CGSize) -> Path {
         let points = self.data.onlyPoints()
         let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
         if curvedLines {
             return Path.quadCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
         } else {
-            return Path.linePathWithPoints(points: points, step: stepSize)
+            return Path.straightPath(points: points, size: totalSize)
         }
     }
     
@@ -115,13 +163,8 @@ public struct Line: View {
         if curvedLines {
             return Path.quadClosedCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
         } else {
-            return Path.closedLinePathWithPoints(points: points, step: stepSize)
+            return Path.closedStraightPath(points: points, size: totalSize)
         }
-    }
-    
-    private func getClosestPointOnPath(touchLocation: CGPoint, totalSize: CGSize) -> CGPoint {
-        let closest = self.path(totalSize: totalSize).point(to: touchLocation.x)
-        return closest
     }
     
     public var body: some View {
@@ -158,17 +201,27 @@ public struct Line: View {
                     // TO-DO: Handle if return from `getYOffsetFromCenter` is nil
                     if let y = getYOffsetFromCenter(idx: idx, totalHeight: gr.size.height) {
                         Circle()
-                            .frame(width: 10, height: 10)
                             .offset(x: getXOffsetFromCenter(idx: idx, totalWidth: gr.size.width),
                                     y: y)
+                            .frame(width: 10, height: 10)
                     }
                 }
                 
                 if(self.showIndicator) {
-                    IndicatorPoint()
+                    
+                    Circle()
+                        .frame(width: 10, height: 10)
                         .position(self.getClosestPointOnPath(touchLocation: self.touchLocation, totalSize: gr.size))
                         .rotationEffect(.degrees(180), anchor: .center)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    
+                    IndicatorPoint()
+                        .position(Line.getClosestPointInData(data: self.data,
+                                                             touchLocation: self.touchLocation,
+                                                             totalSize: gr.size).coordinates)
+                        .rotationEffect(.degrees(180), anchor: .center)
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    
                 }
                 
             }
