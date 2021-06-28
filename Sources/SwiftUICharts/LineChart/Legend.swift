@@ -24,7 +24,7 @@ struct Legend: View {
     var min: CGFloat {
         return CGFloat(self.data.onlyPoints().min()!)
     }
-    
+
     var max: CGFloat {
         return CGFloat(self.data.onlyPoints().max()!)
     }
@@ -76,14 +76,17 @@ struct Legend: View {
             
             ZStack(alignment: .topLeading) {
                 
-                // Step lines
+                // Y-value lines
                 ForEach(0 ... totalSteps, id: \.self) { stepIdx in
+                    
                     HStack(alignment: .center, spacing: 0) {
+                        
                         Text("\(self.getStepYValue(step: stepIdx), specifier: "%.2f")")
                             .frame(width: Legend.legendOffset)
                             .offset(x: 0, y: self.getOffsetFromCenter(step: stepIdx, totalHeight: gr.size.height))
                             .foregroundColor(Colors.LegendText)
                             .font(.caption)
+                        
                         self.line(atHeight: self.getStepYValue(step: stepIdx), length: gr.size.width - Legend.legendOffset, totalHeight: gr.size.height)
                             .stroke(self.colorScheme == .dark ? Colors.LegendDarkColor : Colors.LegendColor,
                                     style: StrokeStyle(lineWidth: self.stepLineWidth,
@@ -94,7 +97,9 @@ struct Legend: View {
                             .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                             .animation(.easeOut(duration: 0.2))
                             .clipped()
+                        
                     }
+                    
                 }
                 
                 // x-axis

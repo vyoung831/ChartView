@@ -26,7 +26,6 @@ public struct LineView: View {
     
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     @State private var showLegend = false
-    @State private var dragLocation: CGPoint = .zero
     @State private var touchLocation: CGPoint = .zero
     @State private var opacity: Double = 0
     
@@ -61,10 +60,10 @@ public struct LineView: View {
     }
     
     public var body: some View {
-        GeometryReader{ geometry in
-            VStack(alignment: .leading, spacing: 8) {
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 25) {
                 
-                Group{
+                VStack(alignment: .leading, spacing: 12) {
                     
                     if let titleString = self.title {
                         Text(titleString)
@@ -80,54 +79,46 @@ public struct LineView: View {
                     }
                     
                 }
-                .offset(x: 0, y: 20)
                 
-                ZStack {
-                    GeometryReader{ reader in
-                        
-                        Rectangle()
-                            .foregroundColor(.clear)
-                        
-                        if self.showLegend {
-                            Legend(hideHorizontalLines: self.$hideHorizontalLines,
-                                   data: self.data)
-                                .transition(.opacity)
-                                .animation(Animation.easeOut(duration: 1))
-                        }
-                        
-                        Line(data: self.data,
-                             gradient: self.style.gradientColor,
-                             showBackground: false,
-                             touchLocation: self.$touchLocation,
-                             showIndicator: self.$hideHorizontalLines,
-                             minDataValue: .constant(nil),
-                             maxDataValue: .constant(nil)
-                        )
-                        .frame(width: reader.size.width - Legend.legendOffset - (MagnifierRect.width/2),
-                               height: reader.size.height)
-                        .offset(x: Legend.legendOffset, y: 0)
-                        .onAppear(){
-                            self.showLegend = true
-                        }
-                        .onDisappear(){
-                            self.showLegend = false
-                        }
-                        
+                ZStack(alignment: Alignment(horizontal: .leading, vertical: .bottom)) {
+                    
+                    Rectangle()
+                        .foregroundColor(.clear)
+                    
+                    if self.showLegend {
+                        Legend(hideHorizontalLines: self.$hideHorizontalLines, data: self.data)
+                            .transition(.opacity)
+                            .animation(Animation.easeOut(duration: 1))
                     }
-                    .frame(width: geometry.frame(in: .local).size.width, height: zStackHeight)
-                    .offset(y: self.zStackOffset)
+                    
+                    Line(data: self.data,
+                         gradient: self.style.gradientColor,
+                         showBackground: false,
+                         touchLocation: self.$touchLocation,
+                         showIndicator: self.$hideHorizontalLines,
+                         minDataValue: .constant(nil),
+                         maxDataValue: .constant(nil)
+                    )
+                    .frame(width: geometry.size.width - Legend.legendOffset - (MagnifierRect.width/2),
+                           height: zStackHeight)
+                    .offset(x: Legend.legendOffset)
+                    .onAppear(){
+                        self.showLegend = true
+                    }
+                    .onDisappear(){
+                        self.showLegend = false
+                    }
                     
                     MagnifierRect(valueSpecifier: self.valueSpecifier,
                                   x: self.$currentX,
                                   y: self.$currentY)
                         .opacity(self.opacity)
-                        .offset(x: self.dragLocation.x - geometry.frame(in: .local).size.width/2, y: 36)
-                        .frame(width: MagnifierRect.width, height: 260)
+                        .offset(x: self.touchLocation.x + Legend.legendOffset - (MagnifierRect.width/2) )
+                        .frame(width: MagnifierRect.width, height: zStackHeight)
                 }
-                .frame(width: geometry.frame(in: .local).size.width, height: zStackHeight)
+                .frame(width: geometry.size.width, height: zStackHeight)
                 .gesture(DragGesture()
                             .onChanged({ value in
-                                self.dragLocation = value.location
                                 self.opacity = 1
                                 self.hideHorizontalLines = true
                                 
@@ -137,9 +128,7 @@ public struct LineView: View {
                                 let closestPoint =
                                     Line.getClosestPointInData(data: self.data,
                                                                touchLocation: self.touchLocation,
-                                                               totalSize: CGSize(width: geometry.frame(in: .local).size.width
-                                                                                    - Legend.legendOffset
-                                                                                    - MagnifierRect.width/2,
+                                                               totalSize: CGSize(width: geometry.size.width - Legend.legendOffset - MagnifierRect.width/2,
                                                                                  height: zStackHeight))
                                 self.currentX = closestPoint.x
                                 self.currentY = closestPoint.y

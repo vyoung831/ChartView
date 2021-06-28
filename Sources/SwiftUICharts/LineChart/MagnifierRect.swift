@@ -26,9 +26,11 @@ public struct MagnifierRect: View {
         ZStack {
             
             VStack {
-                Text(self.x)
-                    .minimumScaleFactor(0.3)
-                    .lineLimit(1)
+                if self.x.count > 0 {
+                    Text(self.x)
+                        .minimumScaleFactor(0.3)
+                        .lineLimit(1)
+                }
                 Text("\(self.y, specifier: valueSpecifier)")
             }
             .padding(self.padding)
