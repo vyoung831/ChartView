@@ -13,6 +13,7 @@ import SwiftUI
 public struct LineView: View {
     
     @ObservedObject var data: ChartData
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
     
     public var title: String?
     public var legend: String?
@@ -22,40 +23,25 @@ public struct LineView: View {
     
     // Constants for the zStack that the Legend and Line are drawn in.
     let zStackHeight: CGFloat = 240
-    let zStackOffset: CGFloat = 40
     
-    @Environment(\.colorScheme) var colorScheme: ColorScheme
+    // Drag gesture and magnifier rectangle vars
     @State private var showLegend = false
     @State private var touchLocation: CGPoint = .zero
-    @State private var opacity: Double = 0
-    
-    @State private var currentX: String = ""
-    @State private var currentY: Double = 0
+    @State private var dragged: Bool = false
+    @State private var closestX: String = ""
+    @State private var closestY: Double = 0
     @State private var hideHorizontalLines: Bool = false
     
     public init(data: [(String,Double)],
-                title: String? = nil,
-                legend: String? = nil,
+                title: String?,
+                legend: String?,
                 style: ChartStyle = Styles.lineChartStyleOne,
-                valueSpecifier: String? = "%.1f") {
+                valueSpecifier: String = "%.1f") {
         self.data = ChartData(values: data)
         self.title = title
         self.legend = legend
         self.style = style
-        self.valueSpecifier = valueSpecifier!
-        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
-    }
-    
-    public init(data: [Double],
-                title: String? = nil,
-                legend: String? = nil,
-                style: ChartStyle = Styles.lineChartStyleOne,
-                valueSpecifier: String? = "%.1f") {
-        self.data = ChartData(points: data)
-        self.title = title
-        self.legend = legend
-        self.style = style
-        self.valueSpecifier = valueSpecifier!
+        self.valueSpecifier = valueSpecifier
         self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
     }
     
@@ -110,32 +96,29 @@ public struct LineView: View {
                     }
                     
                     MagnifierRect(valueSpecifier: self.valueSpecifier,
-                                  x: self.$currentX,
-                                  y: self.$currentY)
-                        .opacity(self.opacity)
+                                  x: self.$closestX,
+                                  y: self.$closestY)
+                        .opacity(self.dragged ? 1 : 0)
                         .offset(x: self.touchLocation.x + Legend.legendOffset - (MagnifierRect.width/2) )
                         .frame(width: MagnifierRect.width, height: zStackHeight)
                 }
                 .frame(width: geometry.size.width, height: zStackHeight)
                 .gesture(DragGesture()
                             .onChanged({ value in
-                                self.opacity = 1
+                                self.dragged = true
                                 self.hideHorizontalLines = true
                                 
                                 let offsettedX = value.location.x - Legend.legendOffset
-                                
                                 self.touchLocation = CGPoint(x: offsettedX, y: value.location.y)
-                                let closestPoint =
-                                    Line.getClosestPointInData(data: self.data,
-                                                               touchLocation: self.touchLocation,
-                                                               totalSize: CGSize(width: geometry.size.width - Legend.legendOffset - MagnifierRect.width/2,
-                                                                                 height: zStackHeight))
-                                self.currentX = closestPoint.x
-                                self.currentY = closestPoint.y
-                                
+                                let closestPoint = Line.getClosestPointInData(data: self.data,
+                                                                              touchLocation: self.touchLocation,
+                                                                              totalSize: CGSize(width: geometry.size.width - Legend.legendOffset - MagnifierRect.width/2,
+                                                                                                height: zStackHeight))
+                                self.closestX = closestPoint.x
+                                self.closestY = closestPoint.y
                             })
                             .onEnded({ value in
-                                self.opacity = 0
+                                self.dragged = false
                                 self.hideHorizontalLines = false
                             })
                 )
