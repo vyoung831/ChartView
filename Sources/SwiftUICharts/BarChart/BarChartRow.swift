@@ -13,7 +13,7 @@ import SwiftUI
 public struct BarChartRow : View {
     var data: [Double]
     var accentColor: Color
-    var gradient: GradientColor?
+    var gradient: GradientColor
     
     var maxValue: Double {
         guard let max = data.max() else {
@@ -21,6 +21,7 @@ public struct BarChartRow : View {
         }
         return max != 0 ? max : 1
     }
+    
     @Binding var touchLocation: CGFloat
     public var body: some View {
         GeometryReader { geometry in
@@ -51,8 +52,8 @@ public struct BarChartRow : View {
 struct ChartRow_Previews : PreviewProvider {
     static var previews: some View {
         Group {
-            BarChartRow(data: [0], accentColor: Colors.OrangeStart, touchLocation: .constant(-1))
-            BarChartRow(data: [8,23,54,32,12,37,7], accentColor: Colors.OrangeStart, touchLocation: .constant(-1))
+            BarChartRow(data: [0], accentColor: Colors.OrangeStart, gradient: GradientColor(start: .orange, end: .blue), touchLocation: .constant(-1))
+            BarChartRow(data: [8,23,54,32,12,37,7], accentColor: Colors.OrangeStart, gradient: GradientColor(start: .orange, end: .blue), touchLocation: .constant(-1))
         }
     }
 }
