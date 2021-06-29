@@ -35,7 +35,7 @@ public struct LineView: View {
     public init(data: [(String,Double)],
                 title: String?,
                 legend: String?,
-                style: ChartStyle = Styles.lineChartStyleOne,
+                style: ChartStyle,
                 valueSpecifier: String = "%.1f") {
         self.data = ChartData(values: data)
         self.title = title
@@ -69,7 +69,7 @@ public struct LineView: View {
                 ZStack(alignment: Alignment(horizontal: .leading, vertical: .bottom)) {
                     
                     Rectangle()
-                        .foregroundColor(.clear)
+                        .foregroundColor(self.style.backgroundColor)
                     
                     if self.showLegend {
                         Legend(hideHorizontalLines: self.$hideHorizontalLines, data: self.data)

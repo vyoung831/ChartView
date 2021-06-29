@@ -11,15 +11,16 @@ import SwiftUI
 #if os(iOS) || os(watchOS)
 
 public class ChartStyle {
-    public var backgroundColor: Color
+    
+    public var backgroundColor: Color = Color.clear
     public var accentColor: Color
     public var gradientColor: GradientColor
     public var textColor: Color
     public var legendTextColor: Color
-    public var dropShadowColor: Color
+    public var dropShadowColor: Color // Drop shadow for entire graph
     public weak var darkModeStyle: ChartStyle?
     
-    public init(backgroundColor: Color, accentColor: Color, secondGradientColor: Color, textColor: Color, legendTextColor: Color, dropShadowColor: Color){
+    public init(backgroundColor: Color = .clear, accentColor: Color, secondGradientColor: Color, textColor: Color, legendTextColor: Color, dropShadowColor: Color) {
         self.backgroundColor = backgroundColor
         self.accentColor = accentColor
         self.gradientColor = GradientColor(start: accentColor, end: secondGradientColor)
@@ -28,7 +29,7 @@ public class ChartStyle {
         self.dropShadowColor = dropShadowColor
     }
     
-    public init(backgroundColor: Color, accentColor: Color, gradientColor: GradientColor, textColor: Color, legendTextColor: Color, dropShadowColor: Color){
+    public init(backgroundColor: Color = .clear, accentColor: Color, gradientColor: GradientColor, textColor: Color, legendTextColor: Color, dropShadowColor: Color) {
         self.backgroundColor = backgroundColor
         self.accentColor = accentColor
         self.gradientColor = gradientColor
@@ -37,7 +38,7 @@ public class ChartStyle {
         self.dropShadowColor = dropShadowColor
     }
     
-    public init(formSize: CGSize){
+    public init(formSize: CGSize) {
         self.backgroundColor = Color.white
         self.accentColor = Colors.OrangeStart
         self.gradientColor = GradientColors.orange
@@ -45,6 +46,7 @@ public class ChartStyle {
         self.textColor = Color.black
         self.dropShadowColor = Color.gray
     }
+    
 }
 
 #endif
