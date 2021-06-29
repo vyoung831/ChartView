@@ -28,36 +28,12 @@ public struct Styles {
         legendTextColor: Color.gray,
         dropShadowColor: Color.gray)
     
-    public static let barChartStyleOrangeDark = ChartStyle(
-        backgroundColor: Color.black,
-        accentColor: Colors.OrangeStart,
-        secondGradientColor: Colors.OrangeEnd,
-        textColor: Color.white,
-        legendTextColor: Color.gray,
-        dropShadowColor: Color.gray)
-    
     public static let barChartStyleNeonBlueLight = ChartStyle(
         backgroundColor: Color.white,
         accentColor: Colors.GradientNeonBlue,
         secondGradientColor: Colors.GradientPurple,
         textColor: Color.black,
         legendTextColor: Color.gray,
-        dropShadowColor: Color.gray)
-    
-    public static let barChartStyleNeonBlueDark = ChartStyle(
-        backgroundColor: Color.black,
-        accentColor: Colors.GradientNeonBlue,
-        secondGradientColor: Colors.GradientPurple,
-        textColor: Color.white,
-        legendTextColor: Color.gray,
-        dropShadowColor: Color.gray)
-    
-    public static let barChartMidnightGreenDark = ChartStyle(
-        backgroundColor: Color(hexString: "#36534D"), //3B5147, 313D34
-        accentColor: Color(hexString: "#FFD603"),
-        secondGradientColor: Color(hexString: "#FFCA04"),
-        textColor: Color.white,
-        legendTextColor: Color(hexString: "#D2E5E1"),
         dropShadowColor: Color.gray)
     
     public static let barChartMidnightGreenLight = ChartStyle(
@@ -74,14 +50,6 @@ public struct Styles {
         secondGradientColor: Colors.OrangeStart,
         textColor: Color.black,
         legendTextColor: Color.gray,
-        dropShadowColor: Color.gray)
-    
-    public static let lineViewDarkMode = ChartStyle(
-        backgroundColor: Color.black,
-        accentColor: Colors.OrangeStart,
-        secondGradientColor: Colors.OrangeEnd,
-        textColor: Color.white,
-        legendTextColor: Color.white,
         dropShadowColor: Color.gray)
 }
 

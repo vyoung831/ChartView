@@ -15,7 +15,6 @@ public struct MultiLineChartView: View {
     public var title: String
     public var legend: String?
     public var style: ChartStyle
-    public var darkModeStyle: ChartStyle
     public var formSize: CGSize
     public var dropShadow: Bool
     public var valueSpecifier:String
@@ -61,7 +60,6 @@ public struct MultiLineChartView: View {
         self.title = title
         self.legend = legend
         self.style = style
-        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
         self.formSize = form
         frame = CGSize(width: self.formSize.width, height: self.formSize.height/2)
         self.rateValue = rateValue
@@ -72,7 +70,7 @@ public struct MultiLineChartView: View {
     public var body: some View {
         ZStack(alignment: .center){
             RoundedRectangle(cornerRadius: 20)
-                .fill(self.colorScheme == .dark ? self.darkModeStyle.backgroundColor : self.style.backgroundColor)
+                .fill(self.style.backgroundColor)
                 .frame(width: frame.width, height: 240, alignment: .center)
                 .shadow(radius: self.dropShadow ? 8 : 0)
             VStack(alignment: .leading){
@@ -81,11 +79,11 @@ public struct MultiLineChartView: View {
                         Text(self.title)
                             .font(.title)
                             .bold()
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
+                            .foregroundColor(self.style.textColor)
                         if (self.legend != nil){
                             Text(self.legend!)
                                 .font(.callout)
-                                .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
+                                .foregroundColor(self.style.legendTextColor)
                         }
                         HStack {
                             if (rateValue ?? 0 >= 0){

@@ -16,7 +16,6 @@ public struct BarChartView : View {
     public var title: String
     public var legend: String?
     public var style: ChartStyle
-    public var darkModeStyle: ChartStyle
     public var formSize:CGSize
     public var dropShadow: Bool
     public var cornerImage: Image
@@ -42,7 +41,6 @@ public struct BarChartView : View {
         self.title = title
         self.legend = legend
         self.style = style
-        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.barChartStyleOrangeDark
         self.formSize = form!
         self.dropShadow = dropShadow!
         self.cornerImage = cornerImage!
@@ -52,7 +50,7 @@ public struct BarChartView : View {
     public var body: some View {
         ZStack{
             Rectangle()
-                .fill(self.colorScheme == .dark ? self.darkModeStyle.backgroundColor : self.style.backgroundColor)
+                .fill(self.style.backgroundColor)
                 .cornerRadius(20)
                 .shadow(color: self.style.dropShadowColor, radius: self.dropShadow ? 8 : 0)
             VStack(alignment: .leading){
@@ -60,40 +58,40 @@ public struct BarChartView : View {
                     if(!showValue){
                         Text(self.title)
                             .font(.headline)
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
+                            .foregroundColor(self.style.textColor)
                     }else{
                         Text("\(self.currentValue, specifier: self.valueSpecifier)")
                             .font(.headline)
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
+                            .foregroundColor(self.style.textColor)
                     }
                     if(self.formSize == ChartForm.large && self.legend != nil && !showValue) {
                         Text(self.legend!)
                             .font(.callout)
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.accentColor : self.style.accentColor)
+                            .foregroundColor(self.style.accentColor)
                             .transition(.opacity)
                             .animation(.easeOut)
                     }
                     Spacer()
                     self.cornerImage
                         .imageScale(.large)
-                        .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
+                        .foregroundColor(self.style.legendTextColor)
                 }.padding()
                 
                 BarChartRow(data: data.points.map{$0.1},
-                            accentColor: self.colorScheme == .dark ? self.darkModeStyle.accentColor : self.style.accentColor,
-                            gradient: self.colorScheme == .dark ? self.darkModeStyle.gradientColor : self.style.gradientColor,
+                            accentColor: self.style.accentColor,
+                            gradient: self.style.gradientColor,
                             touchLocation: self.$touchLocation)
                 
                 if self.legend != nil  && self.formSize == ChartForm.medium && !self.showLabelValue{
                     Text(self.legend!)
                         .font(.headline)
-                        .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
+                        .foregroundColor(self.style.legendTextColor)
                         .padding()
                 }else if (self.data.valuesGiven && self.getCurrentValue() != nil) {
                     LabelView(arrowOffset: self.getArrowOffset(touchLocation: self.touchLocation),
                               title: .constant(self.getCurrentValue()!.0))
                         .offset(x: self.getLabelViewOffset(touchLocation: self.touchLocation), y: -6)
-                        .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
+                        .foregroundColor(self.style.legendTextColor)
                 }
                 
             }

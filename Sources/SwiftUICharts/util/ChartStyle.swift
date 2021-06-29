@@ -18,7 +18,6 @@ public class ChartStyle {
     public var textColor: Color
     public var legendTextColor: Color
     public var dropShadowColor: Color // Drop shadow for entire graph
-    public weak var darkModeStyle: ChartStyle?
     
     public init(backgroundColor: Color = .clear, accentColor: Color, secondGradientColor: Color, textColor: Color, legendTextColor: Color, dropShadowColor: Color) {
         self.backgroundColor = backgroundColor

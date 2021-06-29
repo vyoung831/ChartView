@@ -18,7 +18,6 @@ public struct LineView: View {
     public var title: String?
     public var legend: String?
     public var style: ChartStyle
-    public var darkModeStyle: ChartStyle
     public var valueSpecifier: String
     
     // Constants for the zStack that the Legend and Line are drawn in.
@@ -42,7 +41,6 @@ public struct LineView: View {
         self.legend = legend
         self.style = style
         self.valueSpecifier = valueSpecifier
-        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
     }
     
     public var body: some View {
@@ -55,13 +53,13 @@ public struct LineView: View {
                         Text(titleString)
                             .font(.title)
                             .bold()
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
+                            .foregroundColor(self.style.textColor)
                     }
                     
                     if let legendString = self.legend {
                         Text(legendString)
                             .font(.callout)
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
+                            .foregroundColor(self.style.legendTextColor)
                     }
                     
                 }
