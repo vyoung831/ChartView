@@ -59,7 +59,7 @@ public struct LineView: View {
                     if let legendString = self.legend {
                         Text(legendString)
                             .font(.callout)
-                            .foregroundColor(self.style.legendTextColor)
+                            .foregroundColor(self.style.accentColor)
                     }
                     
                 }

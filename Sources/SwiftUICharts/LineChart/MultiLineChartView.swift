@@ -83,7 +83,7 @@ public struct MultiLineChartView: View {
                         if (self.legend != nil){
                             Text(self.legend!)
                                 .font(.callout)
-                                .foregroundColor(self.style.legendTextColor)
+                                .foregroundColor(self.style.accentColor)
                         }
                         HStack {
                             if (rateValue ?? 0 >= 0){

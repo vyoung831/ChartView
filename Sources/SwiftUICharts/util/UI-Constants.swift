@@ -17,7 +17,6 @@ public struct Styles {
         accentColor: Colors.OrangeStart,
         secondGradientColor: Colors.OrangeEnd,
         textColor: Color.black,
-        legendTextColor: Color.gray,
         dropShadowColor: Color.gray)
     
     public static let barChartStyleOrangeLight = ChartStyle(
@@ -25,7 +24,6 @@ public struct Styles {
         accentColor: Colors.OrangeStart,
         secondGradientColor: Colors.OrangeEnd,
         textColor: Color.black,
-        legendTextColor: Color.gray,
         dropShadowColor: Color.gray)
     
     public static let barChartStyleNeonBlueLight = ChartStyle(
@@ -33,7 +31,6 @@ public struct Styles {
         accentColor: Colors.GradientNeonBlue,
         secondGradientColor: Colors.GradientPurple,
         textColor: Color.black,
-        legendTextColor: Color.gray,
         dropShadowColor: Color.gray)
     
     public static let barChartMidnightGreenLight = ChartStyle(
@@ -41,7 +38,6 @@ public struct Styles {
         accentColor: Color(hexString: "#84A094"), //84A094 , 698378
         secondGradientColor: Color(hexString: "#50675D"),
         textColor: Color.black,
-        legendTextColor:Color.gray,
         dropShadowColor: Color.gray)
     
     public static let pieChartStyleOne = ChartStyle(
@@ -49,7 +45,6 @@ public struct Styles {
         accentColor: Colors.OrangeEnd,
         secondGradientColor: Colors.OrangeStart,
         textColor: Color.black,
-        legendTextColor: Color.gray,
         dropShadowColor: Color.gray)
 }
 

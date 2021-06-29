@@ -18,7 +18,6 @@ public struct BarChartCell : View {
     var cellWidth: Double {
         return Double(width)/(Double(numberOfDataPoints) * 1.5)
     }
-    var accentColor: Color
     var gradient: GradientColor
     
     @State var scaleValue: Double = 0
@@ -40,7 +39,7 @@ public struct BarChartCell : View {
 #if DEBUG
 struct ChartCell_Previews : PreviewProvider {
     static var previews: some View {
-        BarChartCell(value: Double(0.75), width: 320, numberOfDataPoints: 12, accentColor: Colors.OrangeStart, gradient: GradientColor(start: .orange, end: .blue), touchLocation: .constant(-1))
+        BarChartCell(value: Double(0.75), width: 320, numberOfDataPoints: 12, gradient: GradientColor(start: .orange, end: .blue), touchLocation: .constant(-1))
     }
 }
 #endif

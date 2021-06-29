@@ -74,24 +74,23 @@ public struct BarChartView : View {
                     Spacer()
                     self.cornerImage
                         .imageScale(.large)
-                        .foregroundColor(self.style.legendTextColor)
+                        .foregroundColor(self.style.accentColor)
                 }.padding()
                 
                 BarChartRow(data: data.points.map{$0.1},
-                            accentColor: self.style.accentColor,
                             gradient: self.style.gradientColor,
                             touchLocation: self.$touchLocation)
                 
-                if self.legend != nil  && self.formSize == ChartForm.medium && !self.showLabelValue{
+                if self.legend != nil  && self.formSize == ChartForm.medium && !self.showLabelValue {
                     Text(self.legend!)
                         .font(.headline)
-                        .foregroundColor(self.style.legendTextColor)
+                        .foregroundColor(self.style.accentColor)
                         .padding()
-                }else if (self.data.valuesGiven && self.getCurrentValue() != nil) {
+                } else if (self.data.valuesGiven && self.getCurrentValue() != nil) {
                     LabelView(arrowOffset: self.getArrowOffset(touchLocation: self.touchLocation),
                               title: .constant(self.getCurrentValue()!.0))
                         .offset(x: self.getLabelViewOffset(touchLocation: self.touchLocation), y: -6)
-                        .foregroundColor(self.style.legendTextColor)
+                        .foregroundColor(self.style.accentColor)
                 }
                 
             }

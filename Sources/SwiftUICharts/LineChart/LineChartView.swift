@@ -70,7 +70,7 @@ public struct LineChartView: View {
                         if (self.legend != nil){
                             Text(self.legend!)
                                 .font(.callout)
-                                .foregroundColor(self.style.legendTextColor)
+                                .foregroundColor(self.style.accentColor)
                         }
                         HStack {
                             

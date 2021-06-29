@@ -15,9 +15,9 @@ public struct PieChartView : View {
     public var title: String
     public var legend: String?
     public var style: ChartStyle
-    public var formSize:CGSize
+    public var formSize: CGSize
     public var dropShadow: Bool
-    public var valueSpecifier:String
+    public var valueSpecifier: String
     
     @State private var showValue = false
     @State private var currentValue: Double = 0 {
@@ -61,14 +61,17 @@ public struct PieChartView : View {
                     Spacer()
                     Image(systemName: "chart.pie.fill")
                         .imageScale(.large)
-                        .foregroundColor(self.style.legendTextColor)
+                        .foregroundColor(self.style.accentColor)
                 }.padding()
-                PieChartRow(data: data, backgroundColor: self.style.backgroundColor, accentColor: self.style.accentColor, showValue: $showValue, currentValue: $currentValue)
-                    .foregroundColor(self.style.accentColor).padding(self.legend != nil ? 0 : 12).offset(y:self.legend != nil ? 0 : -10)
+                PieChartRow(data: data, backgroundColor: self.style.backgroundColor,
+                            fillColor: self.style.gradientColor.start,
+                            showValue: $showValue,
+                            currentValue: $currentValue)
+                    .foregroundColor(self.style.accentColor).padding(self.legend != nil ? 0 : 12).offset(y: self.legend != nil ? 0 : -10)
                 if(self.legend != nil) {
                     Text(self.legend!)
                         .font(.headline)
-                        .foregroundColor(self.style.legendTextColor)
+                        .foregroundColor(self.style.accentColor)
                         .padding()
                 }
                 
