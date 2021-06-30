@@ -118,7 +118,7 @@ public struct MultiLineChartView: View {
                                  gradient: self.data[i].getGradient(),
                                  index: i,
                                  curvedLines: self.curvedLines,
-                                 closedPath: false,
+                                 showBackground: false,
                                  touchLocation: self.$touchLocation,
                                  showIndicator: self.$showIndicatorDot,
                                  minDataValue: .constant(self.globalMin),

@@ -18,7 +18,8 @@ public struct Line: View {
     var index: Int = 0
     var curvedLines: Bool
     
-    @State var closedPath: Bool
+    @State var showBackground: Bool = true
+    @State private var showFull: Bool = false
     
     @Binding var touchLocation: CGPoint
     @Binding var showIndicator: Bool
@@ -172,7 +173,7 @@ public struct Line: View {
             
             ZStack {
                 
-                if(self.closedPath){
+                if(self.showFull && self.showBackground){
                     self.closedPath(totalSize: gr.size)
                         .fill(LinearGradient(gradient: Gradient(colors: [Colors.GradientUpperBlue, .white]), startPoint: .bottom, endPoint: .top))
                         .rotationEffect(.degrees(180), anchor: .center)
@@ -182,17 +183,17 @@ public struct Line: View {
                 }
                 
                 self.path(totalSize: gr.size)
-                    .trim(from: 0, to: self.closedPath ? 1:0)
+                    .trim(from: 0, to: self.showFull ? 1:0)
                     .stroke(LinearGradient(gradient: gradient.getGradient(), startPoint: .leading, endPoint: .trailing),
                             style: StrokeStyle(lineWidth: 3, lineJoin: .round))
                     .rotationEffect(.degrees(180), anchor: .center)
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                     .animation(Animation.easeOut(duration: 1.2).delay(Double(self.index)*0.4))
                     .onAppear {
-                        self.closedPath = true
+                        self.showFull = true
                     }
                     .onDisappear {
-                        self.closedPath = false
+                        self.showFull = false
                     }
                     .drawingGroup()
                 
