@@ -17,6 +17,7 @@ public struct LineView: View {
     
     public var title: String?
     public var legend: String?
+    public var curvedLines: Bool
     public var style: ChartStyle
     public var valueSpecifier: String
     
@@ -34,11 +35,13 @@ public struct LineView: View {
     public init(data: [(String,Double)],
                 title: String?,
                 legend: String?,
+                curvedLines: Bool,
                 style: ChartStyle,
                 valueSpecifier: String = "%.1f") {
         self.data = ChartData(values: data)
         self.title = title
         self.legend = legend
+        self.curvedLines = curvedLines
         self.style = style
         self.valueSpecifier = valueSpecifier
     }
@@ -77,6 +80,7 @@ public struct LineView: View {
                     
                     Line(data: self.data,
                          gradient: self.style.gradientColor,
+                         curvedLines: self.curvedLines,
                          showBackground: false,
                          touchLocation: self.$touchLocation,
                          showIndicator: self.$hideHorizontalLines,

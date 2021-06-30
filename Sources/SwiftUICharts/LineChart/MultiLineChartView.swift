@@ -10,10 +10,12 @@ import SwiftUI
 #if os(iOS) || os(watchOS)
 
 public struct MultiLineChartView: View {
+    
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     var data:[MultiLineChartData]
     public var title: String
     public var legend: String?
+    public var curvedLines: Bool
     public var style: ChartStyle
     public var formSize: CGSize
     public var dropShadow: Bool
@@ -51,14 +53,15 @@ public struct MultiLineChartView: View {
                 title: String,
                 legend: String? = nil,
                 style: ChartStyle = Styles.lineChartStyleOne,
+                curvedLines: Bool,
                 form: CGSize = ChartForm.medium,
                 rateValue: Int? = nil,
                 dropShadow: Bool = true,
                 valueSpecifier: String = "%.1f") {
-        
         self.data = data.map({ MultiLineChartData(points: $0.0, gradient: $0.1)})
         self.title = title
         self.legend = legend
+        self.curvedLines = curvedLines
         self.style = style
         self.formSize = form
         frame = CGSize(width: self.formSize.width, height: self.formSize.height/2)
@@ -114,6 +117,7 @@ public struct MultiLineChartView: View {
                             Line(data: self.data[i],
                                  gradient: self.data[i].getGradient(),
                                  index: i,
+                                 curvedLines: self.curvedLines,
                                  showBackground: false,
                                  touchLocation: self.$touchLocation,
                                  showIndicator: self.$showIndicatorDot,

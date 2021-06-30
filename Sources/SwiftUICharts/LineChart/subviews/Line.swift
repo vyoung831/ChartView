@@ -14,9 +14,9 @@ public struct Line: View {
     
     @ObservedObject var data: ChartData
     
-    var gradient: GradientColor = GradientColor(start: Colors.GradientPurple, end: Colors.GradientNeonBlue)
+    var gradient: GradientColor
     var index: Int = 0
-    var curvedLines: Bool = false
+    var curvedLines: Bool
     
     @State var showBackground: Bool = true
     @State private var showFull: Bool = false
@@ -57,9 +57,9 @@ public struct Line: View {
             return 0
         }
         if let min = min, let max = max, min != max {
-            if (min <= 0){
+            if min <= 0 {
                 return totalHeight / CGFloat(max - min)
-            }else{
+            } else {
                 return totalHeight / CGFloat(max - min)
             }
         }
