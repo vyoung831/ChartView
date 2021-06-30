@@ -16,14 +16,14 @@ public struct LineView: View {
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     
     public var title: String?
-    public var legend: String?
+    public var subtext: String?
     public var curvedLines: Bool
     public var closedPath: Bool
     public var style: ChartStyle
     public var valueSpecifier: String
     
-    // Constants for the zStack that the Legend and Line are drawn in.
-    let zStackHeight: CGFloat = 240
+    let titleAndSubtextHeight: CGFloat = 100
+    let mainVStackSpacing: CGFloat = 20
     
     // Drag gesture and magnifier rectangle vars
     @State private var showLegend = false
@@ -35,14 +35,14 @@ public struct LineView: View {
     
     public init(data: [(String,Double)],
                 title: String?,
-                legend: String?,
+                subtext: String?,
                 curvedLines: Bool,
                 closedPath: Bool,
                 style: ChartStyle,
                 valueSpecifier: String = "%.1f") {
         self.data = ChartData(values: data)
         self.title = title
-        self.legend = legend
+        self.subtext = subtext
         self.curvedLines = curvedLines
         self.closedPath = closedPath
         self.style = style
@@ -50,25 +50,28 @@ public struct LineView: View {
     }
     
     public var body: some View {
+        
         GeometryReader { geometry in
-            VStack(alignment: .leading, spacing: 25) {
+            
+            VStack(alignment: .leading, spacing: self.mainVStackSpacing) {
                 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 15) {
                     
                     if let titleString = self.title {
                         Text(titleString)
-                            .font(.title)
                             .bold()
+                            .font(.title)
                             .foregroundColor(self.style.textColor)
                     }
                     
-                    if let legendString = self.legend {
-                        Text(legendString)
+                    if let subtextString = self.subtext {
+                        Text(subtextString)
                             .font(.callout)
                             .foregroundColor(self.style.accentColor)
                     }
                     
                 }
+                .frame(height: titleAndSubtextHeight)
                 
                 ZStack(alignment: Alignment(horizontal: .leading, vertical: .bottom)) {
                     
@@ -91,7 +94,7 @@ public struct LineView: View {
                          maxDataValue: .constant(nil)
                     )
                     .frame(width: geometry.size.width - Legend.legendOffset - (MagnifierRect.width/2),
-                           height: zStackHeight)
+                           height: geometry.size.height - titleAndSubtextHeight - mainVStackSpacing)
                     .offset(x: Legend.legendOffset)
                     .onAppear(){
                         self.showLegend = true
@@ -105,9 +108,10 @@ public struct LineView: View {
                                   y: self.$closestY)
                         .opacity(self.dragged ? 1 : 0)
                         .offset(x: self.touchLocation.x + Legend.legendOffset - (MagnifierRect.width/2) )
-                        .frame(width: MagnifierRect.width, height: zStackHeight)
+                        .frame(height: geometry.size.height - titleAndSubtextHeight - mainVStackSpacing)
+                    
                 }
-                .frame(width: geometry.size.width, height: zStackHeight)
+                .frame(width: geometry.size.width, height: geometry.size.height - titleAndSubtextHeight - mainVStackSpacing)
                 .gesture(DragGesture()
                             .onChanged({ value in
                                 self.dragged = true
@@ -118,7 +122,7 @@ public struct LineView: View {
                                 let closestPoint = Line.getClosestPointInData(data: self.data,
                                                                               touchLocation: self.touchLocation,
                                                                               totalSize: CGSize(width: geometry.size.width - Legend.legendOffset - MagnifierRect.width/2,
-                                                                                                height: zStackHeight))
+                                                                                                height: geometry.size.height - titleAndSubtextHeight - mainVStackSpacing))
                                 self.closestX = closestPoint.x
                                 self.closestY = closestPoint.y
                             })
@@ -127,8 +131,11 @@ public struct LineView: View {
                                 self.hideHorizontalLines = false
                             })
                 )
+                
             }
+            
         }
+        
     }
     
 }

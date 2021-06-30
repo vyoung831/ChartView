@@ -23,31 +23,35 @@ public struct MagnifierRect: View {
     
     public var body: some View {
         
-        ZStack {
+        GeometryReader { geometry in
             
-            VStack {
-                if self.x.count > 0 {
-                    Text(self.x)
-                        .minimumScaleFactor(0.3)
-                        .lineLimit(1)
+            ZStack {
+                
+                VStack {
+                    if self.x.count > 0 {
+                        Text(self.x)
+                            .minimumScaleFactor(0.3)
+                            .lineLimit(1)
+                    }
+                    Text("\(self.y, specifier: valueSpecifier)")
                 }
-                Text("\(self.y, specifier: valueSpecifier)")
-            }
-            .padding(self.padding)
-            .font(.system(size: 18, weight: .bold))
-            .offset(x: 0, y: -110)
-            .foregroundColor(self.colorScheme == .dark ? Color.white : Color.black)
-            
-            if (self.colorScheme == .dark ) {
-                RoundedRectangle(cornerRadius: MagnifierRect.cornerRadius)
-                    .stroke(Color.white, lineWidth: self.colorScheme == .dark ? 2 : 0)
-                    .frame(width: MagnifierRect.width, height: 260)
-            } else {
-                RoundedRectangle(cornerRadius: MagnifierRect.cornerRadius)
-                    .frame(width: MagnifierRect.width, height: 260)
-                    .foregroundColor(Color.white)
-                    .shadow(color: Colors.LegendText, radius: 12, x: 0, y: 6 )
-                    .blendMode(.multiply)
+                .padding(self.padding)
+                .font(.system(size: 18, weight: .bold))
+                .offset(x: 0, y: (-geometry.size.height / 2) + 30)
+                .foregroundColor(self.colorScheme == .dark ? Color.white : Color.black)
+                
+                if (self.colorScheme == .dark ) {
+                    RoundedRectangle(cornerRadius: MagnifierRect.cornerRadius)
+                        .stroke(Color.white, lineWidth: self.colorScheme == .dark ? 2 : 0)
+                        .frame(width: MagnifierRect.width, height: geometry.size.height)
+                } else {
+                    RoundedRectangle(cornerRadius: MagnifierRect.cornerRadius)
+                        .frame(width: MagnifierRect.width, height: geometry.size.height)
+                        .foregroundColor(Color.white)
+                        .shadow(color: Colors.LegendText, radius: 12, x: 0, y: 6 )
+                        .blendMode(.multiply)
+                }
+                
             }
             
         }
