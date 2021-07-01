@@ -18,6 +18,7 @@ public struct LineView: View {
     public var title: String?
     public var subtext: String?
     public var curvedLines: Bool
+    public var fillGraph: Bool
     public var style: ChartStyle
     public var valueSpecifier: String
     
@@ -36,12 +37,14 @@ public struct LineView: View {
                 title: String?,
                 subtext: String?,
                 curvedLines: Bool,
+                fillGraph: Bool,
                 style: ChartStyle,
                 valueSpecifier: String = "%.1f") {
         self.data = ChartData(values: data)
         self.title = title
         self.subtext = subtext
         self.curvedLines = curvedLines
+        self.fillGraph = fillGraph
         self.style = style
         self.valueSpecifier = valueSpecifier
     }
@@ -84,7 +87,7 @@ public struct LineView: View {
                     Line(data: self.data,
                          gradient: self.style.gradientColor,
                          curvedLines: self.curvedLines,
-                         showBackground: false,
+                         fillGraph: self.fillGraph,
                          touchLocation: self.$touchLocation,
                          showIndicator: self.$hideHorizontalLines,
                          minDataValue: .constant(nil),

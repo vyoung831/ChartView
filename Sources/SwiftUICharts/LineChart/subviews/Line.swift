@@ -18,7 +18,8 @@ public struct Line: View {
     var index: Int = 0
     var curvedLines: Bool
     
-    @State var showBackground: Bool = true
+    @State var fillGraph: Bool
+    
     @State private var showFull: Bool = false
     
     @Binding var touchLocation: CGPoint
@@ -173,7 +174,7 @@ public struct Line: View {
             
             ZStack {
                 
-                if(self.showFull && self.showBackground){
+                if(self.showFull && self.fillGraph){
                     self.closedPath(totalSize: gr.size)
                         .fill(LinearGradient(gradient: Gradient(colors: [Colors.GradientUpperBlue, .white]), startPoint: .bottom, endPoint: .top))
                         .rotationEffect(.degrees(180), anchor: .center)
