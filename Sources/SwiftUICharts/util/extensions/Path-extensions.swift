@@ -159,7 +159,7 @@ extension Path {
     
     /**
      Returns a non-curved, non-closed path that takes up the entirety of the provided size, represented as a straight line graph.
-     - parameter points: y-values of points to draw.
+     - parameter points: y-values of the input points that make up the path.
      - parameter size: The total size of the parent View that the Path is to be drawn in.
      - returns: Non-curved path that takes up the entire size of the parent View, with even horizontal spacing.
      */
@@ -194,7 +194,7 @@ extension Path {
      - If all points are non-negative, the path is closed at the bottom of the View.
      - If all points are negative, the path is closed at the top of the View.
      - If points are both negative and non-negative, the path is closed at the x-axis.
-     - parameter points: y-values of points to draw.
+     - parameter points: y-values of the input points that make up the path.
      - parameter size: The total size of the parent View that the Path is to be drawn in.
      - returns: Path returned by `Path.straightPath()`, closed at a height determined by the values in `points`.
      */
@@ -231,20 +231,31 @@ extension Path {
 
 extension Path {
     
-    static func quadCurvedPathWithPoints(points: [Double], step: CGPoint, globalOffset: Double? = nil) -> Path {
+    /**
+     Returns a path that takes up the entire size provided and draws quadratic bezier curves between each pair of points.
+     - parameter points: y-values of the input points that make up the graph.
+     - parameter size: The total size of the parent View that the Path is to be drawn in.
+     - returns: Bezier quadratically-curved path that takes up the entire size of the parent View, with even horizontal spacing between input points.
+     */
+    static func quadCurvedPath(points: [Double], size: CGSize) -> Path {
+        
+        // TO-DO: Handle insufficient point count more gracefully
+        // TO-DO: Return optional or signal to caller that func found nil in required optionals
         var path = Path()
         if (points.count < 2){
             return path
         }
-        let offset = globalOffset ?? points.min()!
-        //        guard let offset = points.min() else { return path }
+        guard let min = points.min(), let max = points.max() else { return path }
+        let diff: CGFloat = CGFloat(max - min)
+        let xStep: CGFloat = size.width / CGFloat(points.count - 1)
         
         // Draw the path
-        var p1 = CGPoint(x: 0, y: CGFloat(points[0]-offset)*step.y)
+        var p1 = CGPoint(x: 0, y: CGFloat(points[0] - min)/diff * size.height)
         path.move(to: p1)
-        for pointIndex in 1..<points.count {
-            let p2 = CGPoint(x: step.x * CGFloat(pointIndex), y: step.y*CGFloat(points[pointIndex]-offset))
-            let midPoint = CGPoint.midPointForPoints(p1: p1, p2: p2)
+        
+        for idx in 1 ..< points.count {
+            let p2 = CGPoint(x: xStep * CGFloat(idx), y: CGFloat(points[idx] - min)/diff * size.height)
+            let midPoint = CGPoint.midPoint(p1: p1, p2: p2)
             path.addQuadCurve(to: midPoint, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p1))
             path.addQuadCurve(to: p2, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p2))
             p1 = p2
@@ -265,7 +276,7 @@ extension Path {
         path.addLine(to: p1)
         for pointIndex in 1..<points.count {
             let p2 = CGPoint(x: step.x * CGFloat(pointIndex), y: step.y*CGFloat(points[pointIndex]-offset))
-            let midPoint = CGPoint.midPointForPoints(p1: p1, p2: p2)
+            let midPoint = CGPoint.midPoint(p1: p1, p2: p2)
             path.addQuadCurve(to: midPoint, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p1))
             path.addQuadCurve(to: p2, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p2))
             p1 = p2

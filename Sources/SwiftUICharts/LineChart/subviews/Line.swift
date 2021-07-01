@@ -152,7 +152,7 @@ public struct Line: View {
         let points = self.data.onlyPoints()
         let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
         if curvedLines {
-            return Path.quadCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
+            return Path.quadCurvedPath(points: points, size: totalSize)
         } else {
             return Path.straightPath(points: points, size: totalSize)
         }
