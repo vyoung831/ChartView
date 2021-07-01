@@ -17,7 +17,7 @@ public struct LineView: View {
     
     public var title: String?
     public var subtext: String?
-    public var curvedLines: Bool
+    public var curvedLines: Bool = false
     public var fillGraph: Bool
     public var style: ChartStyle
     public var valueSpecifier: String
@@ -36,14 +36,12 @@ public struct LineView: View {
     public init(data: [(String,Double)],
                 title: String?,
                 subtext: String?,
-                curvedLines: Bool,
                 fillGraph: Bool,
                 style: ChartStyle,
                 valueSpecifier: String = "%.1f") {
         self.data = ChartData(values: data)
         self.title = title
         self.subtext = subtext
-        self.curvedLines = curvedLines
         self.fillGraph = fillGraph
         self.style = style
         self.valueSpecifier = valueSpecifier
