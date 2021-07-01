@@ -78,6 +78,7 @@ public struct LineView: View {
                     
                     if self.showLegend {
                         Legend(hideHorizontalLines: self.$hideHorizontalLines, data: self.data)
+                            .frame(width: geometry.size.width - (MagnifierRect.width/2))
                             .transition(.opacity)
                             .animation(Animation.easeOut(duration: 1))
                     }
