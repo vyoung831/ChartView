@@ -12,34 +12,33 @@ import SwiftUI
 public struct MultiLineChartView: View {
     
     @Environment(\.colorScheme) var colorScheme: ColorScheme
-    var data:[MultiLineChartData]
+    var data: [MultiLineChartData]
     public var title: String
     public var legend: String?
     public var curvedLines: Bool
     public var style: ChartStyle
     public var formSize: CGSize
     public var dropShadow: Bool
-    public var valueSpecifier:String
+    public var valueSpecifier: String
     
-    @State private var touchLocation:CGPoint = .zero
+    @State private var touchLocation: CGPoint = .zero
     @State private var showIndicatorDot: Bool = false
     @State private var currentValue: Double = 2 {
         didSet{
             if (oldValue != self.currentValue && showIndicatorDot) {
                 HapticFeedback.playSelection()
             }
-            
         }
     }
     
-    var globalMin:Double {
+    var globalMin: Double {
         if let min = data.flatMap({$0.onlyPoints()}).min() {
             return min
         }
         return 0
     }
     
-    var globalMax:Double {
+    var globalMax: Double {
         if let max = data.flatMap({$0.onlyPoints()}).max() {
             return max
         }
@@ -49,7 +48,7 @@ public struct MultiLineChartView: View {
     var frame = CGSize(width: 180, height: 120)
     private var rateValue: Int?
     
-    public init(data: [([Double], GradientColor)],
+    public init(data: [MultiLineChartData],
                 title: String,
                 legend: String? = nil,
                 style: ChartStyle = Styles.lineChartStyleOne,
@@ -58,7 +57,7 @@ public struct MultiLineChartView: View {
                 rateValue: Int? = nil,
                 dropShadow: Bool = true,
                 valueSpecifier: String = "%.1f") {
-        self.data = data.map({ MultiLineChartData(points: $0.0, gradient: $0.1)})
+        self.data = data
         self.title = title
         self.legend = legend
         self.curvedLines = curvedLines

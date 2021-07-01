@@ -33,13 +33,13 @@ public struct LineView: View {
     @State private var closestY: Double = 0
     @State private var hideHorizontalLines: Bool = false
     
-    public init(data: [(String,Double)],
+    public init(data: ChartData,
                 title: String?,
                 subtext: String?,
                 fillGraph: Bool,
                 style: ChartStyle,
                 valueSpecifier: String = "%.1f") {
-        self.data = ChartData(values: data)
+        self.data = data
         self.title = title
         self.subtext = subtext
         self.fillGraph = fillGraph

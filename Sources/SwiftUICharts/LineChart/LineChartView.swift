@@ -13,18 +13,18 @@ import SwiftUI
 public struct LineChartView: View {
     
     @Environment(\.colorScheme) var colorScheme: ColorScheme
-    @ObservedObject var data:ChartData
+    @ObservedObject var data: ChartData
     public var title: String
     public var legend: String?
     public var curvedLines: Bool
     public var fillGraph: Bool
     public var style: ChartStyle
     
-    public var formSize:CGSize
+    public var formSize: CGSize
     public var dropShadow: Bool
-    public var valueSpecifier:String
+    public var valueSpecifier: String
     
-    @State private var touchLocation:CGPoint = .zero
+    @State private var touchLocation: CGPoint = .zero
     @State private var showIndicatorDot: Bool = false
     @State private var currentValue: Double = 2 {
         didSet{
@@ -37,7 +37,7 @@ public struct LineChartView: View {
     var frame = CGSize(width: 180, height: 120)
     private var rateValue: Int?
     
-    public init(data: [Double],
+    public init(data: ChartData,
                 title: String,
                 legend: String? = nil,
                 curvedLines: Bool,
@@ -47,7 +47,7 @@ public struct LineChartView: View {
                 rateValue: Int? = 14,
                 dropShadow: Bool? = true,
                 valueSpecifier: String? = "%.1f") {
-        self.data = ChartData(points: data)
+        self.data = data
         self.title = title
         self.legend = legend
         self.style = style
@@ -150,10 +150,10 @@ public struct LineChartView: View {
 struct WidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            LineChartView(data: [8,23,54,32,12,37,7,23,43], title: "Line chart", legend: "Basic", curvedLines: false, fillGraph: false)
+            LineChartView(data: ChartData(points: [8,23,54,32,12,37,7,23,43]), title: "Line chart", legend: "Basic", curvedLines: false, fillGraph: false)
                 .environment(\.colorScheme, .light)
             
-            LineChartView(data: [282.502, 284.495, 283.51, 285.019, 285.197, 286.118, 288.737, 288.455, 289.391, 287.691, 285.878, 286.46, 286.252, 284.652, 284.129, 284.188], title: "Line chart", legend: "Basic", curvedLines: true, fillGraph: true)
+            LineChartView(data: ChartData(points: [282.502, 284.495, 283.51, 285.019, 285.197, 286.118, 288.737, 288.455, 289.391, 287.691, 285.878, 286.46, 286.252, 284.652, 284.129, 284.188]), title: "Line chart", legend: "Basic", curvedLines: true, fillGraph: true)
                 .environment(\.colorScheme, .light)
         }
     }
