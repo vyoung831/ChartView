@@ -22,8 +22,10 @@ public struct LineView: View {
     public var style: ChartStyle
     public var valueSpecifier: String
     
-    let titleAndSubtextHeight: CGFloat = 100
-    let mainVStackSpacing: CGFloat = 20
+    // `graphInsets` provides insets for graph's ZStack to draw Line and Legend in.
+    let graphInsets: EdgeInsets = EdgeInsets(top: 45, leading: 0, bottom: 45, trailing: 0)
+    let titleAndSubtextHeight: CGFloat = 75
+    let mainVStackSpacing: CGFloat = 5
     
     // Drag gesture and magnifier rectangle vars
     @State private var showLegend = false
@@ -47,13 +49,21 @@ public struct LineView: View {
         self.valueSpecifier = valueSpecifier
     }
     
+    /**
+     - parameter totalHeight: The total height available for LineView to be drawn in.
+     - returns: The height available for the entire graph - `Line`, `Legend`, and `MagnifierRect` -  to be drawn in (Line and Legend are further inset).
+     */
+    private func getGraphHeight(_ totalHeight: CGFloat) -> CGFloat {
+        return totalHeight - mainVStackSpacing - titleAndSubtextHeight
+    }
+    
     public var body: some View {
         
         GeometryReader { geometry in
             
             VStack(alignment: .leading, spacing: self.mainVStackSpacing) {
                 
-                VStack(alignment: .leading, spacing: 15) {
+                VStack(alignment: .leading, spacing: 5) {
                     
                     if let titleString = self.title {
                         Text(titleString)
@@ -71,46 +81,51 @@ public struct LineView: View {
                 }
                 .frame(height: titleAndSubtextHeight)
                 
+                // ZStack containing graph (MagnifierRect, and further inset Line + Legend so that MagnifierRect appears larger than graph)
                 ZStack(alignment: Alignment(horizontal: .leading, vertical: .bottom)) {
                     
                     Rectangle()
                         .foregroundColor(self.style.backgroundColor)
                     
-                    if self.showLegend {
-                        Legend(hideHorizontalLines: self.$hideHorizontalLines, data: self.data)
-                            .frame(width: geometry.size.width - (MagnifierRect.width/2))
-                            .transition(.opacity)
-                            .animation(Animation.easeOut(duration: 1))
+                    Group {
+                        
+                        if self.showLegend {
+                            Legend(hideHorizontalLines: self.$hideHorizontalLines, data: self.data)
+                                .frame(width: geometry.size.width - (MagnifierRect.width/2))
+                                .transition(.opacity)
+                                .animation(Animation.easeOut(duration: 1))
+                        }
+                        
+                        Line(data: self.data,
+                             gradient: self.style.gradientColor,
+                             curvedLines: self.curvedLines,
+                             fillGraph: self.fillGraph,
+                             touchLocation: self.$touchLocation,
+                             showIndicator: self.$hideHorizontalLines,
+                             minDataValue: .constant(nil),
+                             maxDataValue: .constant(nil)
+                        )
+                        .frame(width: geometry.size.width - Legend.legendOffset - (MagnifierRect.width/2))
+                        .offset(x: Legend.legendOffset)
+                        .onAppear(){
+                            self.showLegend = true
+                        }
+                        .onDisappear(){
+                            self.showLegend = false
+                        }
+                        
                     }
-                    
-                    Line(data: self.data,
-                         gradient: self.style.gradientColor,
-                         curvedLines: self.curvedLines,
-                         fillGraph: self.fillGraph,
-                         touchLocation: self.$touchLocation,
-                         showIndicator: self.$hideHorizontalLines,
-                         minDataValue: .constant(nil),
-                         maxDataValue: .constant(nil)
-                    )
-                    .frame(width: geometry.size.width - Legend.legendOffset - (MagnifierRect.width/2),
-                           height: geometry.size.height - titleAndSubtextHeight - mainVStackSpacing)
-                    .offset(x: Legend.legendOffset)
-                    .onAppear(){
-                        self.showLegend = true
-                    }
-                    .onDisappear(){
-                        self.showLegend = false
-                    }
+                    .padding(self.graphInsets)
                     
                     MagnifierRect(valueSpecifier: self.valueSpecifier,
                                   x: self.$closestX,
                                   y: self.$closestY)
                         .opacity(self.dragged ? 1 : 0)
                         .offset(x: self.touchLocation.x + Legend.legendOffset - (MagnifierRect.width/2) )
-                        .frame(height: geometry.size.height - titleAndSubtextHeight - mainVStackSpacing)
+                        .frame(height: getGraphHeight(geometry.size.height))
                     
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height - titleAndSubtextHeight - mainVStackSpacing)
+                .frame(width: geometry.size.width, height: getGraphHeight(geometry.size.height))
                 .gesture(DragGesture()
                             .onChanged({ value in
                                 self.dragged = true
