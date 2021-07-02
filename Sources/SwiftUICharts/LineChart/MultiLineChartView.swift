@@ -12,7 +12,7 @@ import SwiftUI
 public struct MultiLineChartView: View {
     
     @Environment(\.colorScheme) var colorScheme: ColorScheme
-    var data: [MultiLineChartData]
+    var data: [MultiLineChartViewData]
     public var title: String
     public var legend: String?
     public var curvedLines: Bool
@@ -48,7 +48,7 @@ public struct MultiLineChartView: View {
     var frame = CGSize(width: 180, height: 120)
     private var rateValue: Int?
     
-    public init(data: [MultiLineChartData],
+    public init(data: [MultiLineChartViewData],
                 title: String,
                 legend: String? = nil,
                 style: ChartStyle = Styles.lineChartStyleOne,

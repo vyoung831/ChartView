@@ -13,7 +13,7 @@ import SwiftUI
 public struct LineChartView: View {
     
     @Environment(\.colorScheme) var colorScheme: ColorScheme
-    @ObservedObject var data: ChartData
+    @ObservedObject var data: LineChartData
     public var title: String
     public var legend: String?
     public var curvedLines: Bool
@@ -37,7 +37,7 @@ public struct LineChartView: View {
     var frame = CGSize(width: 180, height: 120)
     private var rateValue: Int?
     
-    public init(data: ChartData,
+    public init(data: LineChartData,
                 title: String,
                 legend: String? = nil,
                 curvedLines: Bool,
@@ -150,10 +150,32 @@ public struct LineChartView: View {
 struct WidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            LineChartView(data: ChartData(points: [8,23,54,32,12,37,7,23,43]), title: "Line chart", legend: "Basic", curvedLines: false, fillGraph: false)
+            LineChartView(data: LineChartData(points: [8,23,54,32,12,37,7,23,43],
+                                              getColor: { value in
+                                                if value > 30 {
+                                                    return .green
+                                                } else {
+                                                    return .red
+                                                }
+                                              }),
+                          title: "Line chart",
+                          legend: "Basic",
+                          curvedLines: false,
+                          fillGraph: false)
                 .environment(\.colorScheme, .light)
             
-            LineChartView(data: ChartData(points: [282.502, 284.495, 283.51, 285.019, 285.197, 286.118, 288.737, 288.455, 289.391, 287.691, 285.878, 286.46, 286.252, 284.652, 284.129, 284.188]), title: "Line chart", legend: "Basic", curvedLines: true, fillGraph: true)
+            LineChartView(data: LineChartData(points: [282.502, 284.495, 283.51, 285.019, 285.197, 286.118, 288.737, 288.455, 289.391, 287.691, 285.878, 286.46, 286.252, 284.652, 284.129, 284.188],
+                                              getColor: { value in
+                                                if value > 285.5 {
+                                                    return .green
+                                                } else {
+                                                    return .red
+                                                }
+                                              }),
+                          title: "Line chart",
+                          legend: "Basic",
+                          curvedLines: true,
+                          fillGraph: true)
                 .environment(\.colorScheme, .light)
         }
     }

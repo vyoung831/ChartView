@@ -13,6 +13,7 @@ import SwiftUI
 // MARK: - GradientColor
 
 public struct GradientColor {
+    
     public let start: Color
     public let end: Color
     
@@ -24,6 +25,7 @@ public struct GradientColor {
     public func getGradient() -> Gradient {
         return Gradient(colors: [start, end])
     }
+    
 }
 
 // MARK: - ChartData
@@ -60,24 +62,56 @@ public class ChartData: ObservableObject {
     public func onlyPoints() -> [Double] {
         return self.points.map{ $0.1 }
     }
+    
 }
 
-public class MultiLineChartData: ChartData {
-    var gradient: GradientColor
+// MARK: - ChartData subclasses for line charts
+
+public class LineChartData: ChartData {
     
-    public init<N: BinaryFloatingPoint>(points:[N], gradient: GradientColor) {
-        self.gradient = gradient
+    // Used for deciding what a plotted point should be colored.
+    var getColor: (Double) -> Color
+    
+    public init<N: BinaryFloatingPoint>(points: [N], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
         super.init(points: points)
     }
     
-    public init<N: BinaryFloatingPoint>(points:[N], color: Color) {
-        self.gradient = GradientColor(start: color, end: color)
-        super.init(points: points)
+    public init<N: BinaryInteger>(values: [(String, N)], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(values: values)
+    }
+    
+    public init<N: BinaryFloatingPoint>(values: [(String, N)], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(values: values)
+    }
+    
+    public init<N: BinaryInteger>(numberValues: [(N, N)], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(numberValues: numberValues)
+    }
+    
+    public init<N: BinaryFloatingPoint & LosslessStringConvertible>(numberValues: [(N, N)], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(numberValues: numberValues)
+    }
+    
+}
+
+public class MultiLineChartViewData: LineChartData {
+    
+    var gradient: GradientColor
+    
+    public init<N: BinaryFloatingPoint>(points: [N], gradient: GradientColor, getColor: @escaping (Double) -> Color) {
+        self.gradient = gradient
+        super.init(points: points, getColor: getColor)
     }
     
     public func getGradient() -> GradientColor {
         return self.gradient
     }
+    
 }
 
 class HapticFeedback {

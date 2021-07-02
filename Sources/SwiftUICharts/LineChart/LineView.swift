@@ -12,7 +12,7 @@ import SwiftUI
 
 public struct LineView: View {
     
-    @ObservedObject var data: ChartData
+    @ObservedObject var data: LineChartData
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     
     public var title: String?
@@ -33,7 +33,7 @@ public struct LineView: View {
     @State private var closestY: Double = 0
     @State private var hideHorizontalLines: Bool = false
     
-    public init(data: ChartData,
+    public init(data: LineChartData,
                 title: String?,
                 subtext: String?,
                 fillGraph: Bool,

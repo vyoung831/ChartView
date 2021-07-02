@@ -12,7 +12,7 @@ import SwiftUI
 
 public struct Line: View {
     
-    @ObservedObject var data: ChartData
+    @ObservedObject var data: LineChartData
     
     var gradient: GradientColor
     var index: Int = 0
@@ -150,7 +150,6 @@ public struct Line: View {
     
     private func path(totalSize: CGSize) -> Path {
         let points = self.data.onlyPoints()
-        let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
         if curvedLines {
             return Path.quadCurvedPath(points: points, size: totalSize)
         } else {
@@ -205,6 +204,7 @@ public struct Line: View {
                             .offset(x: getXOffsetFromCenter(idx: idx, totalWidth: gr.size.width),
                                     y: y)
                             .frame(width: 10, height: 10)
+                            .foregroundColor(data.getColor(data.onlyPoints()[idx]))
                     }
                 }
                 
