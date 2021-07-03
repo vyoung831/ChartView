@@ -119,9 +119,7 @@ public struct MultiLineChartView: View {
                                  curvedLines: self.curvedLines,
                                  fillGraph: false,
                                  touchLocation: self.$touchLocation,
-                                 showIndicator: self.$showIndicatorDot,
-                                 minDataValue: .constant(self.globalMin),
-                                 maxDataValue: .constant(self.globalMax))
+                                 showIndicator: self.$showIndicatorDot)
                         }
                     }
                 }

@@ -111,9 +111,7 @@ public struct LineChartView: View {
                          curvedLines: self.curvedLines,
                          fillGraph: self.fillGraph,
                          touchLocation: self.$touchLocation,
-                         showIndicator: self.$showIndicatorDot,
-                         minDataValue: .constant(nil),
-                         maxDataValue: .constant(nil)
+                         showIndicator: self.$showIndicatorDot
                     )
                 }
                 .frame(width: frame.width, height: frame.height + 30)

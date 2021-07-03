@@ -15,17 +15,13 @@ public struct Line: View {
     @ObservedObject var data: LineChartData
     
     var gradient: GradientColor
-    var index: Int = 0
-    var curvedLines: Bool
-    
+    @State var index: Int = 0
+    @State var curvedLines: Bool
     @State var fillGraph: Bool
-    
-    @State private var showFull: Bool = false
+    @State var showFull: Bool = false
     
     @Binding var touchLocation: CGPoint
     @Binding var showIndicator: Bool
-    @Binding var minDataValue: Double?
-    @Binding var maxDataValue: Double?
     
     /**
      Calculates and returns the horizontal spacing between each point in `data`.
@@ -48,21 +44,14 @@ public struct Line: View {
         var min: Double?
         var max: Double?
         let points = self.data.onlyPoints()
-        if minDataValue != nil && maxDataValue != nil {
-            min = minDataValue!
-            max = maxDataValue!
-        } else if let minPoint = points.min(), let maxPoint = points.max(), minPoint != maxPoint {
+        if let minPoint = points.min(), let maxPoint = points.max(), minPoint != maxPoint {
             min = minPoint
             max = maxPoint
         } else {
             return 0
         }
         if let min = min, let max = max, min != max {
-            if min <= 0 {
-                return totalHeight / CGFloat(max - min)
-            } else {
-                return totalHeight / CGFloat(max - min)
-            }
+            return totalHeight / CGFloat(max - min)
         }
         return 0
     }
@@ -161,7 +150,7 @@ public struct Line: View {
         let points = self.data.onlyPoints()
         let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
         if curvedLines {
-            return Path.quadClosedCurvedPathWithPoints(points: points, step: stepSize, globalOffset: minDataValue)
+            return Path.quadClosedCurvedPathWithPoints(points: points, step: stepSize, globalOffset: 0)
         } else {
             return Path.closedStraightPath(points: points, size: totalSize)
         }

@@ -14,20 +14,13 @@ struct Legend: View {
     
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     
+    var minY: CGFloat
+    var maxY: CGFloat
     let totalSteps: Int = 4
     let stepLineWidth: CGFloat = 2
     static let legendOffset: CGFloat = 50
     
     @Binding var hideHorizontalLines: Bool
-    @ObservedObject var data: ChartData
-    
-    var min: CGFloat {
-        return CGFloat(self.data.onlyPoints().min()!)
-    }
-
-    var max: CGFloat {
-        return CGFloat(self.data.onlyPoints().max()!)
-    }
     
     /**
      Returns the y-axis value of a specific step.
@@ -36,8 +29,8 @@ struct Legend: View {
      - returns: The y-value for the provided step.
      */
     func getStepYValue(step: Int) -> CGFloat {
-        let stepHeight = (max - min) / CGFloat(totalSteps)
-        return min + (CGFloat(step) * stepHeight)
+        let stepHeight = (maxY - minY) / CGFloat(totalSteps)
+        return minY + (CGFloat(step) * stepHeight)
     }
     
     /**
@@ -47,7 +40,7 @@ struct Legend: View {
      - returns: The y-offset from the parent view's center that the step line should be drawn on.
      */
     func getOffsetFromCenter(step: Int, totalHeight: CGFloat) -> CGFloat {
-        let diff = max - min
+        let diff = maxY - minY
         let stepHeight = diff/CGFloat(totalSteps)
         let yValue = CGFloat(stepHeight * CGFloat(step))
         let offsetFromBottom = yValue / CGFloat(diff)
@@ -64,7 +57,7 @@ struct Legend: View {
      */
     func line(atHeight: CGFloat, length: CGFloat, totalHeight: CGFloat) -> Path {
         var hLine = Path()
-        let yValue = ((atHeight - min) / (max - min)) * totalHeight
+        let yValue = ((atHeight - minY) / (maxY - minY)) * totalHeight
         hLine.move(to: CGPoint(x: 0, y: yValue))
         hLine.addLine(to: CGPoint(x: length, y: yValue))
         return hLine
@@ -103,7 +96,7 @@ struct Legend: View {
                 }
                 
                 // x-axis
-                if max >= 0 && min <= 0 {
+                if maxY >= 0 && minY <= 0 {
                     self.line(atHeight: 0, length: gr.size.width - Legend.legendOffset, totalHeight: gr.size.height)
                         .offset(x: Legend.legendOffset)
                         .stroke(Color.red,
