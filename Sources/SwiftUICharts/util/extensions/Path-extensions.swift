@@ -204,22 +204,23 @@ extension Path {
         var path = straightPath(points: points, size: size)
         guard let min = points.min(), let max = points.max() else { return path }
         
-        var closedHeight: CGFloat = 0
+        // Find height in `size` to close path at.
+        var closeHeight: CGFloat = 0
         if !points.contains(where: { $0 < 0.0 }) {
             // All points are non-negative. Move path to minimum value in `points`
-            closedHeight = 0
+            closeHeight = 0
         } else if !points.contains(where: { $0 > 0.0 }) {
             // All points are negative. Move path to maximum value in `points`
-            closedHeight = size.height
+            closeHeight = size.height
         } else {
             // All points are mixed positive and negative. Move path to x-axis
             let xAxisHeight = 0 - min
             let diff = max - min
-            closedHeight = CGFloat(xAxisHeight/diff) * size.height
+            closeHeight = CGFloat(xAxisHeight/diff) * size.height
         }
         
-        path.addLine(to: CGPoint(x: size.width, y: closedHeight))
-        path.addLine(to: CGPoint(x: 0, y: closedHeight))
+        path.addLine(to: CGPoint(x: size.width, y: closeHeight))
+        path.addLine(to: CGPoint(x: 0, y: closeHeight))
         path.closeSubpath()
         return path
         
@@ -263,25 +264,55 @@ extension Path {
         return path
     }
     
-    static func quadClosedCurvedPathWithPoints(points:[Double], step:CGPoint, globalOffset: Double? = nil) -> Path {
+    /**
+     Returns the path returned by `Path.quadCurvedPath()`, closed at either the top, bottom, or x-axis.
+     Given that `size` is the total size of the parent View that this Path is drawn in, the height at which the Path is closed depends on the values in `points`.
+     - If all points are non-negative, the path is closed at the bottom of the View.
+     - If all points are negative, the path is closed at the top of the View.
+     - If points are both negative and non-negative, the path is closed at the x-axis.
+     - parameter points: y-values of the input points that make up the graph.
+     - parameter size: The total size of the parent View that the Path is to be drawn in.
+     - returns: Path returned by `Path.quadCurvedPath()`, closed at a height determined by the values in `points`.
+     */
+    static func quadClosedCurvedPath(points: [Double], size: CGSize) -> Path {
+        
+        // TO-DO: Handle insufficient point count more gracefully
+        // TO-DO: Return optional or signal to caller that func found nil in required optionals
         var path = Path()
         if (points.count < 2){
             return path
         }
-        let offset = globalOffset ?? points.min()!
+        guard let min = points.min(), let max = points.max() else { return path }
+        let diff: CGFloat = CGFloat(max - min)
+        let xStep: CGFloat = size.width / CGFloat(points.count - 1)
         
-        //        guard let offset = points.min() else { return path }
-        path.move(to: .zero)
-        var p1 = CGPoint(x: 0, y: CGFloat(points[0]-offset)*step.y)
-        path.addLine(to: p1)
-        for pointIndex in 1..<points.count {
-            let p2 = CGPoint(x: step.x * CGFloat(pointIndex), y: step.y*CGFloat(points[pointIndex]-offset))
+        // Find height in `size` to close path at.
+        var closeHeight: CGFloat = 0
+        if !points.contains(where: { $0 < 0.0 }) {
+            // All points are non-negative. Move path to minimum value in `points`
+            closeHeight = 0
+        } else if !points.contains(where: { $0 > 0.0 }) {
+            // All points are negative. Move path to maximum value in `points`
+            closeHeight = size.height
+        } else {
+            // All points are mixed positive and negative. Move path to x-axis
+            let xAxisHeight = 0 - min
+            let diff = max - min
+            closeHeight = CGFloat(xAxisHeight/diff) * size.height
+        }
+        
+        var p1 = CGPoint(x: 0, y: CGFloat(points[0] - min)/diff * size.height)
+        path.move(to: p1)
+        
+        for idx in 1 ..< points.count {
+            let p2 = CGPoint(x: xStep * CGFloat(idx), y: CGFloat(points[idx] - min)/diff * size.height)
             let midPoint = CGPoint.midPoint(p1: p1, p2: p2)
             path.addQuadCurve(to: midPoint, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p1))
             path.addQuadCurve(to: p2, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p2))
             p1 = p2
         }
-        path.addLine(to: CGPoint(x: p1.x, y: 0))
+        path.addLine(to: CGPoint(x: size.width, y: closeHeight))
+        path.addLine(to: CGPoint(x: 0, y: closeHeight))
         path.closeSubpath()
         return path
     }

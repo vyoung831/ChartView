@@ -24,39 +24,6 @@ public struct Line: View {
     @Binding var showIndicator: Bool
     
     /**
-     Calculates and returns the horizontal spacing between each point in `data`.
-     - parameter totalWidth: The total width available for this view to be drawn in.
-     - returns: The horizontal spacing to set between each point in `data`.
-     */
-    func stepWidth(totalWidth: CGFloat) -> CGFloat {
-        if data.points.count < 2 {
-            return 0
-        }
-        return totalWidth / CGFloat(data.points.count-1)
-    }
-    
-    /**
-     Calculates and returns the number of pixels that each y-axis increment of value +1 takes up.
-     - parameter totalHeight: The total height available for this view to be drawn in
-     - returns: The number of pixels that each y-axis increment of value +1 takes up.
-     */
-    func stepHeight(totalHeight: CGFloat) -> CGFloat {
-        var min: Double?
-        var max: Double?
-        let points = self.data.onlyPoints()
-        if let minPoint = points.min(), let maxPoint = points.max(), minPoint != maxPoint {
-            min = minPoint
-            max = maxPoint
-        } else {
-            return 0
-        }
-        if let min = min, let max = max, min != max {
-            return totalHeight / CGFloat(max - min)
-        }
-        return 0
-    }
-    
-    /**
      Given the number of values in `data`, calculates and returns the X offset from the center that an element in `data` should be drawn at.
      - parameter idx: The index of the element in `data` for which to calculate the X offset from.
      - parameter totalWidth: The total width of the view that this Line is drawn in.
@@ -148,9 +115,8 @@ public struct Line: View {
     
     private func closedPath(totalSize: CGSize) -> Path {
         let points = self.data.onlyPoints()
-        let stepSize = CGPoint(x: stepWidth(totalWidth: totalSize.width), y: stepHeight(totalHeight: totalSize.height))
         if curvedLines {
-            return Path.quadClosedCurvedPathWithPoints(points: points, step: stepSize, globalOffset: 0)
+            return Path.quadClosedCurvedPath(points: points, size: totalSize)
         } else {
             return Path.closedStraightPath(points: points, size: totalSize)
         }
