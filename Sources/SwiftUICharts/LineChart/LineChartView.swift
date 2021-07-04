@@ -149,6 +149,8 @@ struct WidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             LineChartView(data: LineChartData(points: [8,23,54,32,12,37,7,23,43],
+                                              minY: 0,
+                                              maxY: 75,
                                               getColor: { value in
                                                 if value > 30 {
                                                     return .green
@@ -163,6 +165,8 @@ struct WidgetView_Previews: PreviewProvider {
                 .environment(\.colorScheme, .light)
             
             LineChartView(data: LineChartData(points: [282.502, 284.495, 283.51, 285.019, 285.197, 286.118, 288.737, 288.455, 289.391, 287.691, 285.878, 286.46, 286.252, 284.652, 284.129, 284.188],
+                                              minY: 280,
+                                              maxY: 300,
                                               getColor: { value in
                                                 if value > 285.5 {
                                                     return .green

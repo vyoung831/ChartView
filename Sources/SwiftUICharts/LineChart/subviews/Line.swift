@@ -42,18 +42,12 @@ public struct Line: View {
      - returns: (Optional) The y-offset from the center for the element in `data` at index `idx`.
      */
     private func getYOffsetFromCenter(idx: Int, totalHeight: CGFloat) -> CGFloat? {
-        
-        guard let minDouble = data.onlyPoints().min(), let maxDouble = data.onlyPoints().max() else {
-            return nil
-        }
-        
-        let min = CGFloat(minDouble), max = CGFloat(maxDouble)
+        let min = CGFloat(data.minY), max = CGFloat(data.maxY)
         let yDiff = max - min
         let yHeight = CGFloat(data.onlyPoints()[idx]) - min
         let yRatio = yHeight / yDiff
         let scaledY = totalHeight * yRatio
         return (totalHeight/2) - scaledY
-        
     }
     
     /**
@@ -68,22 +62,19 @@ public struct Line: View {
     
     /**
      Finds and returns the point in `data` that's horizontally closest to a touch gesture.
-     - parameter data: The `ChartData` that is supplied to the Line.
+     - parameter data: The `LineChartData` that is supplied to the Line.
      - parameter touchLocation: Location of touch gesture.
      - parameter totalSize: The total size of the touch gesture's parent View (and that the Line is drawn in).
      - returns: The point in `data` that's horizontally closest to the touch gesture.
      */
-    static func getClosestPointInData(data: ChartData, touchLocation: CGPoint, totalSize: CGSize) -> (coordinates: CGPoint,
+    static func getClosestPointInData(data: LineChartData, touchLocation: CGPoint, totalSize: CGSize) -> (coordinates: CGPoint,
                                                                                                       x: String,
                                                                                                       y: Double) {
         // TO-DO: Update function to protect against division by 0
         // TO-DO: Return optional or signal to caller that func found nil in required optionals
         let points = data.onlyPoints()
-        guard let min = points.min(), let max = points.max() else {
-            return (CGPoint(), "", 0)
-        }
 
-        let diff = CGFloat(max - min)
+        let diff = CGFloat(data.maxY - data.minY)
         let stepWidth: CGFloat = totalSize.width / CGFloat(points.count-1) // The horizontal space between each pair of points.
         let stepHeight: CGFloat = totalSize.height / diff // The vertical space that each y increment of +1 takes up.
         
@@ -98,27 +89,25 @@ public struct Line: View {
             return (CGPoint(), "", 0)
         }
         
-        return (CGPoint(x: CGFloat(idx) * stepWidth, y: (CGFloat(points[idx] - min) * stepHeight)),
+        return (CGPoint(x: CGFloat(idx) * stepWidth, y: (CGFloat(points[idx] - data.minY) * stepHeight)),
                 data.points[idx].x,
                 data.points[idx].y)
         
     }
     
     private func path(totalSize: CGSize) -> Path {
-        let points = self.data.onlyPoints()
         if curvedLines {
-            return Path.quadCurvedPath(points: points, size: totalSize)
+            return Path.quadCurvedPath(data: self.data, size: totalSize)
         } else {
-            return Path.straightPath(points: points, size: totalSize)
+            return Path.straightPath(data: data, size: totalSize)
         }
     }
     
     private func closedPath(totalSize: CGSize) -> Path {
-        let points = self.data.onlyPoints()
         if curvedLines {
-            return Path.quadClosedCurvedPath(points: points, size: totalSize)
+            return Path.quadClosedCurvedPath(data: data, size: totalSize)
         } else {
-            return Path.closedStraightPath(points: points, size: totalSize)
+            return Path.closedStraightPath(data: data, size: totalSize)
         }
     }
     

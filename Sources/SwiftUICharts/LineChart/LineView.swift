@@ -18,8 +18,6 @@ public struct LineView: View {
     public var curvedLines: Bool = false
     public var fillGraph: Bool
     public var style: ChartStyle
-    public var minY: Double
-    public var maxY: Double
     public var valueSpecifier: String
     
     // `graphInsets` provides insets for graph (Line and Legend) within the graph area (Line, Legend, and MagnifierRect).
@@ -38,15 +36,13 @@ public struct LineView: View {
     public init(data: LineChartData,
                 title: String?, subtext: String?,
                 fillGraph: Bool, style: ChartStyle,
-                valueSpecifier: String = "%.1f", minY: Double, maxY: Double) {
+                valueSpecifier: String = "%.1f") {
         self.data = data
         self.title = title
         self.subtext = subtext
         self.fillGraph = fillGraph
         self.style = style
         self.valueSpecifier = valueSpecifier
-        self.minY = minY
-        self.maxY = maxY
     }
     
     /**
@@ -63,27 +59,6 @@ public struct LineView: View {
      */
     private func getGraphHeight(_ totalHeight: CGFloat) -> CGFloat {
         return totalHeight - mainVStackSpacing - titleAndSubtextHeight - graphInsets.top - graphInsets.bottom
-    }
-    
-    /**
-     Finds and returns the insets that should be applied as padding to the graph's `Line`.
-     As LineView accepts min and max y-values for the graph to display, `Line` is further inset, depending on if the provided max/min and greater/less than the max/min values in the ChartData.
-     - parameter totalHeight: The total height available for the graph (`Legend` and `Line`) to be drawn in.
-     - returns: The insets that should be applied as padding to the graph's `Line`.
-     */
-    private func getLineInsets(totalHeight: CGFloat) -> EdgeInsets {
-        
-        guard let min = data.onlyPoints().min(), let max = data.onlyPoints().max() else {
-            return EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-        }
-        
-        let extraMin = (minY < min) ? min - minY : 0
-        let extraMax = (maxY > max) ? maxY - max : 0
-        let diff = max - min
-        let extraMinPercentage = CGFloat(extraMin / (extraMin + diff + extraMax))
-        let extraMaxPercentage = CGFloat(extraMax / (extraMin + diff + extraMax))
-        return EdgeInsets(top: extraMaxPercentage * totalHeight, leading: 0, bottom: extraMinPercentage * totalHeight, trailing: 0)
-        
     }
     
     public var body: some View {
@@ -119,7 +94,7 @@ public struct LineView: View {
                     Group {
 
                         if self.showLegend {
-                            Legend(minY: CGFloat(minY), maxY: CGFloat(maxY), hideHorizontalLines: self.$hideHorizontalLines)
+                            Legend(minY: CGFloat(self.data.minY), maxY: CGFloat(self.data.maxY), hideHorizontalLines: self.$hideHorizontalLines)
                                 .frame(width: geometry.size.width - (MagnifierRect.width/2))
                                 .transition(.opacity)
                                 .animation(Animation.easeOut(duration: 1))
@@ -133,7 +108,6 @@ public struct LineView: View {
                              showIndicator: self.$hideHorizontalLines
                         )
                         .frame(width: geometry.size.width - Legend.legendOffset - (MagnifierRect.width/2))
-                        .padding(self.getLineInsets(totalHeight: getGraphHeight(geometry.size.height)))
                         .offset(x: Legend.legendOffset)
                         .onAppear(){
                             self.showLegend = true

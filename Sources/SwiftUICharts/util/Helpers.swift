@@ -10,24 +10,6 @@ import SwiftUI
 
 #if os(iOS) || os(watchOS)
 
-// MARK: - GradientColor
-
-public struct GradientColor {
-    
-    public let start: Color
-    public let end: Color
-    
-    public init(start: Color, end: Color) {
-        self.start = start
-        self.end = end
-    }
-    
-    public func getGradient() -> Gradient {
-        return Gradient(colors: [start, end])
-    }
-    
-}
-
 // MARK: - ChartData
 
 public class ChartData: ObservableObject {
@@ -69,30 +51,66 @@ public class ChartData: ObservableObject {
 
 public class LineChartData: ChartData {
     
-    // Used for deciding what a plotted point should be colored.
+    /*
+     - getColor: Used for deciding what a plotted point should be colored.
+     - minY: minimum y-value to extend graph to show
+     - maxY: maximum y-value to extend graph to show
+     */
     var getColor: (Double) -> Color
+    private var _minY: Double
+    private var _maxY: Double
     
-    public init<N: BinaryFloatingPoint>(points: [N], getColor: @escaping (Double) -> Color) {
+    var minY: Double {
+        get {
+            if let pointsMin = self.onlyPoints().min() {
+                return self._minY < pointsMin ? _minY : pointsMin
+            } else {
+                return _minY
+            }
+        }
+    }
+    
+    var maxY: Double {
+        get {
+            if let pointsMax = self.onlyPoints().max() {
+                return self._maxY > pointsMax ? _maxY : pointsMax
+            } else {
+                return _maxY
+            }
+        }
+    }
+    
+    public init<N: BinaryFloatingPoint>(points: [N], minY: Double, maxY: Double, getColor: @escaping (Double) -> Color) {
+        self._minY = minY
+        self._maxY = maxY
         self.getColor = getColor
         super.init(points: points)
     }
     
-    public init<N: BinaryInteger>(values: [(String, N)], getColor: @escaping (Double) -> Color) {
+    public init<N: BinaryInteger>(values: [(String, N)], minY: Double, maxY: Double, getColor: @escaping (Double) -> Color) {
+        self._minY = minY
+        self._maxY = maxY
         self.getColor = getColor
         super.init(values: values)
     }
     
-    public init<N: BinaryFloatingPoint>(values: [(String, N)], getColor: @escaping (Double) -> Color) {
+    public init<N: BinaryFloatingPoint>(values: [(String, N)], minY: Double, maxY: Double, getColor: @escaping (Double) -> Color) {
+        self._minY = minY
+        self._maxY = maxY
         self.getColor = getColor
         super.init(values: values)
     }
     
-    public init<N: BinaryInteger>(numberValues: [(N, N)], getColor: @escaping (Double) -> Color) {
+    public init<N: BinaryInteger>(numberValues: [(N, N)], minY: Double, maxY: Double, getColor: @escaping (Double) -> Color) {
+        self._minY = minY
+        self._maxY = maxY
         self.getColor = getColor
         super.init(numberValues: numberValues)
     }
     
-    public init<N: BinaryFloatingPoint & LosslessStringConvertible>(numberValues: [(N, N)], getColor: @escaping (Double) -> Color) {
+    public init<N: BinaryFloatingPoint & LosslessStringConvertible>(numberValues: [(N, N)], minY: Double, maxY: Double, getColor: @escaping (Double) -> Color) {
+        self._minY = minY
+        self._maxY = maxY
         self.getColor = getColor
         super.init(numberValues: numberValues)
     }
@@ -103,9 +121,9 @@ public class MultiLineChartViewData: LineChartData {
     
     var gradient: GradientColor
     
-    public init<N: BinaryFloatingPoint>(points: [N], gradient: GradientColor, getColor: @escaping (Double) -> Color) {
+    public init<N: BinaryFloatingPoint>(points: [N], minY: Double, maxY: Double, gradient: GradientColor, getColor: @escaping (Double) -> Color) {
         self.gradient = gradient
-        super.init(points: points, getColor: getColor)
+        super.init(points: points, minY: minY, maxY: maxY, getColor: getColor)
     }
     
     public func getGradient() -> GradientColor {

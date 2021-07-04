@@ -10,6 +10,26 @@ import SwiftUI
 
 #if os(iOS) || os(watchOS)
 
+// MARK: - GradientColor
+
+public struct GradientColor {
+    
+    public let start: Color
+    public let end: Color
+    
+    public init(start: Color, end: Color) {
+        self.start = start
+        self.end = end
+    }
+    
+    public func getGradient() -> Gradient {
+        return Gradient(colors: [start, end])
+    }
+    
+}
+
+// MARK: - ChartStyle
+
 public class ChartStyle {
     
     public var backgroundColor: Color = Color.clear
