@@ -12,7 +12,7 @@ import SwiftUI
 public struct MultiLineChartView: View {
     
     @Environment(\.colorScheme) var colorScheme: ColorScheme
-    var data: [MultiLineChartViewData]
+    var lines: [(data: MultiLineChartViewData, style: LineChartStyle)]
     public var title: String
     public var legend: String?
     public var curvedLines: Bool
@@ -32,14 +32,14 @@ public struct MultiLineChartView: View {
     }
     
     var globalMin: Double {
-        if let min = data.flatMap({$0.onlyPoints()}).min() {
+        if let min = lines.flatMap({$0.data.onlyPoints()}).min() {
             return min
         }
         return 0
     }
     
     var globalMax: Double {
-        if let max = data.flatMap({$0.onlyPoints()}).max() {
+        if let max = lines.flatMap({$0.data.onlyPoints()}).max() {
             return max
         }
         return 0
@@ -48,7 +48,7 @@ public struct MultiLineChartView: View {
     var frame = CGSize(width: 180, height: 120)
     private var rateValue: Int?
     
-    public init(data: [MultiLineChartViewData],
+    public init(lines: [(MultiLineChartViewData, LineChartStyle)],
                 title: String,
                 legend: String? = nil,
                 style: ChartStyle = Styles.lineChartStyleOne,
@@ -57,7 +57,7 @@ public struct MultiLineChartView: View {
                 rateValue: Int? = nil,
                 dropShadow: Bool = true,
                 valueSpecifier: String = "%.1f") {
-        self.data = data
+        self.lines = lines
         self.title = title
         self.legend = legend
         self.curvedLines = curvedLines
@@ -112,9 +112,9 @@ public struct MultiLineChartView: View {
                 Spacer()
                 GeometryReader{ geometry in
                     ZStack{
-                        ForEach(0..<self.data.count) { i in
-                            Line(data: self.data[i],
-                                 gradient: self.data[i].getGradient(),
+                        ForEach(0 ..< self.lines.count) { i in
+                            Line(data: self.lines[i].data,
+                                 style: self.lines[i].style,
                                  index: i,
                                  curvedLines: self.curvedLines,
                                  fillGraph: false,

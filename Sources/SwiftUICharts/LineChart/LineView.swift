@@ -17,7 +17,7 @@ public struct LineView: View {
     public var subtext: String?
     public var curvedLines: Bool = false
     public var fillGraph: Bool
-    public var style: ChartStyle
+    public var style: LineChartStyle
     public var valueSpecifier: String
     
     // `graphInsets` provides insets for graph (Line and Legend) within the graph area (Line, Legend, and MagnifierRect).
@@ -35,7 +35,7 @@ public struct LineView: View {
     
     public init(data: LineChartData,
                 title: String?, subtext: String?,
-                fillGraph: Bool, style: ChartStyle,
+                fillGraph: Bool, style: LineChartStyle,
                 valueSpecifier: String = "%.1f") {
         self.data = data
         self.title = title
@@ -79,7 +79,7 @@ public struct LineView: View {
                     if let subtextString = self.subtext {
                         Text(subtextString)
                             .font(.callout)
-                            .foregroundColor(self.style.accentColor)
+                            .foregroundColor(self.style.textColor)
                     }
                     
                 }
@@ -94,14 +94,14 @@ public struct LineView: View {
                     Group {
 
                         if self.showLegend {
-                            Legend(minY: CGFloat(self.data.minY), maxY: CGFloat(self.data.maxY), hideHorizontalLines: self.$hideHorizontalLines)
+                            Legend(minY: CGFloat(self.data.minY), maxY: CGFloat(self.data.maxY), style: self.style, hideHorizontalLines: self.$hideHorizontalLines)
                                 .frame(width: geometry.size.width - (MagnifierRect.width/2))
                                 .transition(.opacity)
                                 .animation(Animation.easeOut(duration: 1))
                         }
 
                         Line(data: self.data,
-                             gradient: self.style.gradientColor,
+                             style: self.style,
                              curvedLines: self.curvedLines,
                              fillGraph: self.fillGraph,
                              touchLocation: self.$touchLocation,
@@ -120,6 +120,7 @@ public struct LineView: View {
                     .padding(self.graphInsets)
                     
                     MagnifierRect(valueSpecifier: self.valueSpecifier,
+                                  style: self.style,
                                   x: self.$closestX,
                                   y: self.$closestY)
                         .opacity(self.dragged ? 1 : 0)

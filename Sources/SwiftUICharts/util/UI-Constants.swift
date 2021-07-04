@@ -49,15 +49,15 @@ public struct Styles {
 }
 
 public struct Colors {
-    public static let OrangeEnd:Color = Color(hexString: "#FF782C")
-    public static let OrangeStart:Color = Color(hexString: "#EC2301")
-    public static let LegendText:Color = Color(hexString: "#A7A6A8")
-    public static let LegendColor:Color = Color(hexString: "#E8E7EA")
-    public static let LegendDarkColor:Color = Color(hexString: "#545454")
-    public static let IndicatorKnob:Color = Color(hexString: "#FF57A6")
-    public static let GradientUpperBlue:Color = Color(hexString: "#C2E8FF")
-    public static let GradientPurple:Color = Color(hexString: "#7B75FF")
-    public static let GradientNeonBlue:Color = Color(hexString: "#6FEAFF")
+    public static let OrangeEnd: Color = Color(hexString: "#FF782C")
+    public static let OrangeStart: Color = Color(hexString: "#EC2301")
+    public static let LegendText: Color = Color(hexString: "#A7A6A8")
+    public static let LegendColor: Color = Color(hexString: "#E8E7EA")
+    public static let LegendDarkColor: Color = Color(hexString: "#545454")
+    public static let IndicatorKnob: Color = Color(hexString: "#FF57A6")
+    public static let GradientUpperBlue: Color = Color(hexString: "#C2E8FF")
+    public static let GradientPurple: Color = Color(hexString: "#7B75FF")
+    public static let GradientNeonBlue: Color = Color(hexString: "#6FEAFF")
 }
 
 public struct GradientColors {

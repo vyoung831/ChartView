@@ -18,7 +18,7 @@ public struct LineChartView: View {
     public var legend: String?
     public var curvedLines: Bool
     public var fillGraph: Bool
-    public var style: ChartStyle
+    public var style: LineChartStyle
     
     public var formSize: CGSize
     public var dropShadow: Bool
@@ -42,7 +42,7 @@ public struct LineChartView: View {
                 legend: String? = nil,
                 curvedLines: Bool,
                 fillGraph: Bool,
-                style: ChartStyle = Styles.lineChartStyleOne,
+                style: LineChartStyle,
                 form: CGSize? = ChartForm.medium,
                 rateValue: Int? = 14,
                 dropShadow: Bool? = true,
@@ -107,7 +107,7 @@ public struct LineChartView: View {
                 Spacer()
                 GeometryReader{ geometry in
                     Line(data: self.data,
-                         gradient: self.style.gradientColor,
+                         style: self.style,
                          curvedLines: self.curvedLines,
                          fillGraph: self.fillGraph,
                          touchLocation: self.$touchLocation,
@@ -161,7 +161,8 @@ struct WidgetView_Previews: PreviewProvider {
                           title: "Line chart",
                           legend: "Basic",
                           curvedLines: false,
-                          fillGraph: false)
+                          fillGraph: false,
+                          style: LineChartStyle(chartStyle: Styles.barChartStyleOrangeLight, axisColor: .green) )
                 .environment(\.colorScheme, .light)
             
             LineChartView(data: LineChartData(points: [282.502, 284.495, 283.51, 285.019, 285.197, 286.118, 288.737, 288.455, 289.391, 287.691, 285.878, 286.46, 286.252, 284.652, 284.129, 284.188],
@@ -177,7 +178,8 @@ struct WidgetView_Previews: PreviewProvider {
                           title: "Line chart",
                           legend: "Basic",
                           curvedLines: true,
-                          fillGraph: true)
+                          fillGraph: true,
+                          style: LineChartStyle(chartStyle: Styles.barChartStyleOrangeLight, axisColor: .green) )
                 .environment(\.colorScheme, .light)
         }
     }

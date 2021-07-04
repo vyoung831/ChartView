@@ -16,8 +16,11 @@ struct Legend: View {
     
     var minY: CGFloat
     var maxY: CGFloat
+    var style: LineChartStyle
+    
     let totalSteps: Int = 4
     let stepLineWidth: CGFloat = 2
+    let xAxisLineWidth: CGFloat = 8
     static let legendOffset: CGFloat = 50
     
     @Binding var hideHorizontalLines: Bool
@@ -81,7 +84,7 @@ struct Legend: View {
                             .font(.caption)
                         
                         self.line(atHeight: self.getStepYValue(step: stepIdx), length: gr.size.width - Legend.legendOffset, totalHeight: gr.size.height)
-                            .stroke(self.colorScheme == .dark ? Colors.LegendDarkColor : Colors.LegendColor,
+                            .stroke(self.style.axisColor,
                                     style: StrokeStyle(lineWidth: self.stepLineWidth,
                                                        lineCap: .round,
                                                        dash: [5, stepIdx == 0 ? 0 : 10]))
@@ -99,9 +102,8 @@ struct Legend: View {
                 if maxY >= 0 && minY <= 0 {
                     self.line(atHeight: 0, length: gr.size.width - Legend.legendOffset, totalHeight: gr.size.height)
                         .offset(x: Legend.legendOffset)
-                        .stroke(Color.red,
-                                style: StrokeStyle(lineWidth: self.stepLineWidth,
-                                                   lineCap: .round))
+                        .stroke(self.style.axisColor,
+                                style: StrokeStyle(lineWidth: self.xAxisLineWidth))
                         .rotationEffect(.degrees(180), anchor: .center)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                         .animation(.easeOut(duration: 0.2))

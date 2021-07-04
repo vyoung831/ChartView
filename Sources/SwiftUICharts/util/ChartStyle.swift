@@ -38,12 +38,8 @@ public class ChartStyle {
     public var textColor: Color
     public var dropShadowColor: Color // Drop shadow for entire graph
     
-    public init(backgroundColor: Color = .clear, accentColor: Color, secondGradientColor: Color, textColor: Color, dropShadowColor: Color) {
-        self.backgroundColor = backgroundColor
-        self.accentColor = accentColor
-        self.gradientColor = GradientColor(start: accentColor, end: secondGradientColor)
-        self.textColor = textColor
-        self.dropShadowColor = dropShadowColor
+    convenience init(backgroundColor: Color = .clear, accentColor: Color, secondGradientColor: Color, textColor: Color, dropShadowColor: Color) {
+        self.init(backgroundColor: backgroundColor, accentColor: accentColor, gradientColor: GradientColor(start: accentColor, end: secondGradientColor), textColor: textColor, dropShadowColor: dropShadowColor)
     }
     
     public init(backgroundColor: Color = .clear, accentColor: Color, gradientColor: GradientColor, textColor: Color, dropShadowColor: Color) {
@@ -54,14 +50,22 @@ public class ChartStyle {
         self.dropShadowColor = dropShadowColor
     }
     
-    public init(formSize: CGSize) {
-        self.backgroundColor = Color.white
-        self.accentColor = Colors.OrangeStart
-        self.gradientColor = GradientColors.orange
-        self.textColor = Color.black
-        self.dropShadowColor = Color.gray
+}
+
+public class LineChartStyle: ChartStyle {
+
+    public var axisColor: Color
+
+    public init(backgroundColor: Color = .clear, accentColor: Color, gradientColor: GradientColor, textColor: Color, dropShadowColor: Color, axisColor: Color) {
+        self.axisColor = axisColor
+        super.init(backgroundColor: backgroundColor, accentColor: accentColor, gradientColor: gradientColor, textColor: textColor, dropShadowColor: dropShadowColor)
     }
     
+    public init(chartStyle: ChartStyle, axisColor: Color) {
+        self.axisColor = axisColor
+        super.init(backgroundColor: chartStyle.backgroundColor, accentColor: chartStyle.accentColor, gradientColor: chartStyle.gradientColor, textColor: chartStyle.textColor, dropShadowColor: chartStyle.dropShadowColor)
+    }
+
 }
 
 #endif

@@ -14,7 +14,7 @@ public struct Line: View {
     
     @ObservedObject var data: LineChartData
     
-    var gradient: GradientColor
+    var style: LineChartStyle
     @State var index: Int = 0
     @State var curvedLines: Bool
     @State var fillGraph: Bool
@@ -119,7 +119,7 @@ public struct Line: View {
                 
                 if(self.showFull && self.fillGraph){
                     self.closedPath(totalSize: gr.size)
-                        .fill(LinearGradient(gradient: Gradient(colors: [Colors.GradientUpperBlue, .white]), startPoint: .bottom, endPoint: .top))
+                        .fill(LinearGradient(gradient: self.style.gradientColor.getGradient(), startPoint: .leading, endPoint: .trailing))
                         .rotationEffect(.degrees(180), anchor: .center)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                         .transition(.opacity)
@@ -128,8 +128,7 @@ public struct Line: View {
                 
                 self.path(totalSize: gr.size)
                     .trim(from: 0, to: self.showFull ? 1:0)
-                    .stroke(LinearGradient(gradient: gradient.getGradient(), startPoint: .leading, endPoint: .trailing),
-                            style: StrokeStyle(lineWidth: 3, lineJoin: .round))
+                    .stroke(self.style.accentColor, style: StrokeStyle(lineWidth: 3, lineJoin: .round))
                     .rotationEffect(.degrees(180), anchor: .center)
                     .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
                     .animation(Animation.easeOut(duration: 1.2).delay(Double(self.index)*0.4))
@@ -156,6 +155,7 @@ public struct Line: View {
                     
                     Circle()
                         .frame(width: 10, height: 10)
+                        .foregroundColor(self.style.textColor)
                         .position(self.getClosestPointOnPath(touchLocation: self.touchLocation, totalSize: gr.size))
                         .rotationEffect(.degrees(180), anchor: .center)
                         .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))

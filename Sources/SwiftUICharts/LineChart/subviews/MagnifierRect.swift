@@ -11,21 +11,27 @@ import SwiftUI
 
 public struct MagnifierRect: View {
     
-    static let cornerRadius: CGFloat = 12
+    let padding: EdgeInsets = EdgeInsets(top: 20, leading: 10, bottom: 0, trailing: 10)
+    let cornerRadius: CGFloat = 12
     static let width: CGFloat = 60
     
     var valueSpecifier: String
-    let padding: EdgeInsets = EdgeInsets(top: 20, leading: 10, bottom: 0, trailing: 10)
+    var style: ChartStyle
     
     @Binding var x: String
     @Binding var y: Double
-    @Environment(\.colorScheme) var colorScheme: ColorScheme
     
     public var body: some View {
         
         GeometryReader { geometry in
             
             ZStack {
+                
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .frame(width: MagnifierRect.width, height: geometry.size.height)
+                    .foregroundColor(self.style.accentColor)
+                    .shadow(color: Colors.LegendText, radius: 12, x: 0, y: 6)
+                    .blendMode(.multiply)
                 
                 VStack {
                     if self.x.count > 0 {
@@ -38,19 +44,7 @@ public struct MagnifierRect: View {
                 .padding(self.padding)
                 .font(.system(size: 18, weight: .bold))
                 .offset(x: 0, y: (-geometry.size.height / 2) + 30)
-                .foregroundColor(self.colorScheme == .dark ? Color.white : Color.black)
-                
-                if (self.colorScheme == .dark ) {
-                    RoundedRectangle(cornerRadius: MagnifierRect.cornerRadius)
-                        .stroke(Color.white, lineWidth: self.colorScheme == .dark ? 2 : 0)
-                        .frame(width: MagnifierRect.width, height: geometry.size.height)
-                } else {
-                    RoundedRectangle(cornerRadius: MagnifierRect.cornerRadius)
-                        .frame(width: MagnifierRect.width, height: geometry.size.height)
-                        .foregroundColor(Color.white)
-                        .shadow(color: Colors.LegendText, radius: 12, x: 0, y: 6 )
-                        .blendMode(.multiply)
-                }
+                .foregroundColor(self.style.textColor)
                 
             }
             
