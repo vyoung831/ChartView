@@ -159,11 +159,14 @@ extension Path {
     
     /**
      Returns a non-curved, non-closed path that takes up the entirety of the provided size, represented as a straight line graph.
-     - parameter points: y-values of points to draw.
+     - parameter data: Instance of `LineChartData` containing data's y-values and graph's min/max y-values.
      - parameter size: The total size of the parent View that the Path is to be drawn in.
      - returns: Non-curved path that takes up the entire size of the parent View, with even horizontal spacing.
      */
-    static func straightPath(points: [Double], size: CGSize) -> Path {
+    static func straightPath(data: LineChartData, size: CGSize) -> Path {
+        
+        let points = data.onlyPoints()
+        let diff = data.maxY - data.minY
         
         // TO-DO: Handle insufficient point count more gracefully
         var path = Path()
@@ -171,17 +174,13 @@ extension Path {
             return path
         }
         
-        // TO-DO: Return optional or signal to caller that func found nil in required optionals
-        guard let min = points.min(), let max = points.max() else { return path }
-        let diff = max - min
-        
         // Move Path to starting point
-        let p1 = CGPoint(x: 0, y: CGFloat((points[0] - min) / diff) * size.height)
+        let p1 = CGPoint(x: 0, y: CGFloat((points[0] - data.minY) / diff) * size.height)
         path.move(to: p1)
         
         let xStep = size.width / (CGFloat(points.count - 1))
         for idx in 1 ..< points.count {
-            let p2 = CGPoint(x: xStep * CGFloat(idx), y: CGFloat((points[idx] - min) / diff) * size.height)
+            let p2 = CGPoint(x: xStep * CGFloat(idx), y: CGFloat((points[idx] - data.minY) / diff) * size.height)
             path.addLine(to: p2)
         }
         return path
@@ -190,36 +189,34 @@ extension Path {
     
     /**
      Returns the path returned by `Path.straightPath()`, closed at either the top, bottom, or x-axis.
-     Given that `size` is the total size of the parent View that this Path is drawn in, the height at which the Path is closed depends on the values in `points`.
-     - If all points are non-negative, the path is closed at the bottom of the View.
-     - If all points are negative, the path is closed at the top of the View.
-     - If points are both negative and non-negative, the path is closed at the x-axis.
-     - parameter points: y-values of points to draw.
+     Given that `size` is the total size of the parent View that this Path is drawn in, the height at which the Path is closed depends on the provided `LineChartData`'s data values and min/max y-values.
+     - parameter data: Instance of `LineChartData` containing data's y-values and graph's min/max y-values.
      - parameter size: The total size of the parent View that the Path is to be drawn in.
-     - returns: Path returned by `Path.straightPath()`, closed at a height determined by the values in `points`.
+     - returns: Path returned by `Path.straightPath()`, closed at a height determined by `data`'s points and min/max y-values.
      */
-    static func closedStraightPath(points: [Double], size: CGSize) -> Path {
+    static func closedStraightPath(data: LineChartData, size: CGSize) -> Path {
         
-        // TO-DO: Return optional or signal to caller that func found nil in required optionals
-        var path = straightPath(points: points, size: size)
-        guard let min = points.min(), let max = points.max() else { return path }
+        var path = straightPath(data: data, size: size)
         
-        var closedHeight: CGFloat = 0
-        if !points.contains(where: { $0 < 0.0 }) {
-            // All points are non-negative. Move path to minimum value in `points`
-            closedHeight = 0
-        } else if !points.contains(where: { $0 > 0.0 }) {
-            // All points are negative. Move path to maximum value in `points`
-            closedHeight = size.height
+        // Find height in `size` to close path at.
+        var closeHeight: CGFloat = 0
+        if data.minY <= 0 && data.maxY >= 0 {
+            // y=0 falls within the graph's min and max y-values. Close path at x-axis.
+            let xAxisHeight = 0 - data.minY
+            let diff = data.maxY - data.minY
+            closeHeight = CGFloat(xAxisHeight/diff) * size.height
         } else {
-            // All points are mixed positive and negative. Move path to x-axis
-            let xAxisHeight = 0 - min
-            let diff = max - min
-            closedHeight = CGFloat(xAxisHeight/diff) * size.height
+            if data.minY > 0 {
+                // All points and min y-value are non-negative. Close path at bottom of graph
+                closeHeight = 0
+            } else {
+                // All points and max y-value are negative. Close path at top of graph
+                closeHeight = size.height
+            }
         }
         
-        path.addLine(to: CGPoint(x: size.width, y: closedHeight))
-        path.addLine(to: CGPoint(x: 0, y: closedHeight))
+        path.addLine(to: CGPoint(x: size.width, y: closeHeight))
+        path.addLine(to: CGPoint(x: 0, y: closeHeight))
         path.closeSubpath()
         return path
         
@@ -231,20 +228,31 @@ extension Path {
 
 extension Path {
     
-    static func quadCurvedPathWithPoints(points: [Double], step: CGPoint, globalOffset: Double? = nil) -> Path {
+    /**
+     Returns a path that takes up the entire size provided and draws quadratic bezier curves between each pair of points.
+     - parameter data: Instance of `LineChartData` containing data's y-values and graph's min/max y-values.
+     - parameter size: The total size of the parent View that the Path is to be drawn in.
+     - returns: Bezier quadratically-curved path that takes up the entire size of the parent View, with even horizontal spacing between input points.
+     */
+    static func quadCurvedPath(data: LineChartData, size: CGSize) -> Path {
+        
+        let points = data.onlyPoints()
+        
+        // TO-DO: Handle insufficient point count more gracefully
         var path = Path()
         if (points.count < 2){
             return path
         }
-        let offset = globalOffset ?? points.min()!
-        //        guard let offset = points.min() else { return path }
+        let diff: CGFloat = CGFloat(data.maxY - data.minY)
+        let xStep: CGFloat = size.width / CGFloat(points.count - 1)
         
         // Draw the path
-        var p1 = CGPoint(x: 0, y: CGFloat(points[0]-offset)*step.y)
+        var p1 = CGPoint(x: 0, y: CGFloat(points[0] - data.minY)/diff * size.height)
         path.move(to: p1)
-        for pointIndex in 1..<points.count {
-            let p2 = CGPoint(x: step.x * CGFloat(pointIndex), y: step.y*CGFloat(points[pointIndex]-offset))
-            let midPoint = CGPoint.midPointForPoints(p1: p1, p2: p2)
+        
+        for idx in 1 ..< points.count {
+            let p2 = CGPoint(x: xStep * CGFloat(idx), y: CGFloat(points[idx] - data.minY)/diff * size.height)
+            let midPoint = CGPoint.midPoint(p1: p1, p2: p2)
             path.addQuadCurve(to: midPoint, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p1))
             path.addQuadCurve(to: p2, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p2))
             p1 = p2
@@ -252,27 +260,39 @@ extension Path {
         return path
     }
     
-    static func quadClosedCurvedPathWithPoints(points:[Double], step:CGPoint, globalOffset: Double? = nil) -> Path {
-        var path = Path()
-        if (points.count < 2){
-            return path
-        }
-        let offset = globalOffset ?? points.min()!
+    /**
+     Returns the path returned by `Path.quadCurvedPath()`, closed at either the top, bottom, or x-axis.
+     Given that `size` is the total size of the parent View that this Path is drawn in, the height at which the Path is closed depends on the provided `LineChartData`'s data values and min/max y-values.
+     - parameter data: Instance of `LineChartData` containing data's y-values and graph's min/max y-values.
+     - parameter size: The total size of the parent View that the Path is to be drawn in.
+     - returns: Path returned by `Path.quadCurvedPath()`, closed at a height determined by `data`'s points and min/max y-values.
+     */
+    static func quadClosedCurvedPath(data: LineChartData, size: CGSize) -> Path {
         
-        //        guard let offset = points.min() else { return path }
-        path.move(to: .zero)
-        var p1 = CGPoint(x: 0, y: CGFloat(points[0]-offset)*step.y)
-        path.addLine(to: p1)
-        for pointIndex in 1..<points.count {
-            let p2 = CGPoint(x: step.x * CGFloat(pointIndex), y: step.y*CGFloat(points[pointIndex]-offset))
-            let midPoint = CGPoint.midPointForPoints(p1: p1, p2: p2)
-            path.addQuadCurve(to: midPoint, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p1))
-            path.addQuadCurve(to: p2, control: CGPoint.controlPointForPoints(p1: midPoint, p2: p2))
-            p1 = p2
+        var path = quadCurvedPath(data: data, size: size)
+        
+        // Find height in `size` to close path at.
+        var closeHeight: CGFloat = 0
+        if data.minY <= 0 && data.maxY >= 0 {
+            // y=0 falls within the graph's min and max y-values. Close path at x-axis.
+            let xAxisHeight = 0 - data.minY
+            let diff = data.maxY - data.minY
+            closeHeight = CGFloat(xAxisHeight/diff) * size.height
+        } else {
+            if data.minY > 0 {
+                // All points and min y-value are non-negative. Close path at bottom of graph
+                closeHeight = 0
+            } else {
+                // All points and max y-value are negative. Close path at top of graph
+                closeHeight = size.height
+            }
         }
-        path.addLine(to: CGPoint(x: p1.x, y: 0))
+        
+        path.addLine(to: CGPoint(x: size.width, y: closeHeight))
+        path.addLine(to: CGPoint(x: 0, y: closeHeight))
         path.closeSubpath()
         return path
+        
     }
     
 }

@@ -40,6 +40,15 @@ extension CGPoint {
         distance(to: getPointOnLine(dest: dest, targetX: x))
     }
     
+    /**
+     - parameter p1: First point.
+     - parameter p2: Second point.
+     - returns: Midpoint between the 2 input points.
+     */
+    static func midPoint(p1: CGPoint, p2: CGPoint) -> CGPoint {
+        return CGPoint(x: (p1.x + p2.x)/2, y: (p1.y + p2.y)/2)
+    }
+    
     func quadCurve(to: CGPoint, control: CGPoint) -> CGFloat {
         var dist: CGFloat = 0
         let steps: CGFloat = 100
@@ -157,19 +166,8 @@ extension CGPoint {
         return value
     }
     
-    static func getMidPoint(point1: CGPoint, point2: CGPoint) -> CGPoint {
-        return CGPoint(
-            x: point1.x + (point2.x - point1.x) / 2,
-            y: point1.y + (point2.y - point1.y) / 2
-        )
-    }
-    
-    static func midPointForPoints(p1:CGPoint, p2:CGPoint) -> CGPoint {
-        return CGPoint(x:(p1.x + p2.x) / 2,y: (p1.y + p2.y) / 2)
-    }
-    
     static func controlPointForPoints(p1:CGPoint, p2:CGPoint) -> CGPoint {
-        var controlPoint = CGPoint.midPointForPoints(p1:p1, p2:p2)
+        var controlPoint = CGPoint.midPoint(p1: p1, p2: p2)
         let diffY = abs(p2.y - controlPoint.y)
         
         if (p1.y < p2.y){

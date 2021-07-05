@@ -11,18 +11,20 @@ import SwiftUI
 #if os(iOS) || os(watchOS)
 
 public struct LineChartView: View {
+    
     @Environment(\.colorScheme) var colorScheme: ColorScheme
-    @ObservedObject var data:ChartData
+    @ObservedObject var data: LineChartData
     public var title: String
     public var legend: String?
-    public var style: ChartStyle
-    public var darkModeStyle: ChartStyle
+    public var curvedLines: Bool
+    public var fillGraph: Bool
+    public var style: LineChartStyle
     
-    public var formSize:CGSize
+    public var formSize: CGSize
     public var dropShadow: Bool
-    public var valueSpecifier:String
+    public var valueSpecifier: String
     
-    @State private var touchLocation:CGPoint = .zero
+    @State private var touchLocation: CGPoint = .zero
     @State private var showIndicatorDot: Bool = false
     @State private var currentValue: Double = 2 {
         didSet{
@@ -35,20 +37,22 @@ public struct LineChartView: View {
     var frame = CGSize(width: 180, height: 120)
     private var rateValue: Int?
     
-    public init(data: [Double],
+    public init(data: LineChartData,
                 title: String,
                 legend: String? = nil,
-                style: ChartStyle = Styles.lineChartStyleOne,
+                curvedLines: Bool,
+                fillGraph: Bool,
+                style: LineChartStyle,
                 form: CGSize? = ChartForm.medium,
                 rateValue: Int? = 14,
                 dropShadow: Bool? = true,
                 valueSpecifier: String? = "%.1f") {
-        
-        self.data = ChartData(points: data)
+        self.data = data
         self.title = title
         self.legend = legend
         self.style = style
-        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
+        self.curvedLines = curvedLines
+        self.fillGraph = fillGraph
         self.formSize = form!
         frame = CGSize(width: self.formSize.width, height: self.formSize.height/2)
         self.dropShadow = dropShadow!
@@ -59,7 +63,7 @@ public struct LineChartView: View {
     public var body: some View {
         ZStack(alignment: .center){
             RoundedRectangle(cornerRadius: 20)
-                .fill(self.colorScheme == .dark ? self.darkModeStyle.backgroundColor : self.style.backgroundColor)
+                .fill(self.style.backgroundColor)
                 .frame(width: frame.width, height: 240, alignment: .center)
                 .shadow(color: self.style.dropShadowColor, radius: self.dropShadow ? 8 : 0)
             VStack(alignment: .leading){
@@ -68,11 +72,11 @@ public struct LineChartView: View {
                         Text(self.title)
                             .font(.title)
                             .bold()
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
+                            .foregroundColor(self.style.textColor)
                         if (self.legend != nil){
                             Text(self.legend!)
                                 .font(.callout)
-                                .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor :self.style.legendTextColor)
+                                .foregroundColor(self.style.accentColor)
                         }
                         HStack {
                             
@@ -103,10 +107,11 @@ public struct LineChartView: View {
                 Spacer()
                 GeometryReader{ geometry in
                     Line(data: self.data,
+                         style: self.style,
+                         curvedLines: self.curvedLines,
+                         fillGraph: self.fillGraph,
                          touchLocation: self.$touchLocation,
-                         showIndicator: self.$showIndicatorDot,
-                         minDataValue: .constant(nil),
-                         maxDataValue: .constant(nil)
+                         showIndicator: self.$showIndicatorDot
                     )
                 }
                 .frame(width: frame.width, height: frame.height + 30)
@@ -143,10 +148,38 @@ public struct LineChartView: View {
 struct WidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            LineChartView(data: [8,23,54,32,12,37,7,23,43], title: "Line chart", legend: "Basic")
+            LineChartView(data: LineChartData(points: [8,23,54,32,12,37,7,23,43],
+                                              minY: 0,
+                                              maxY: 75,
+                                              getColor: { value in
+                                                if value > 30 {
+                                                    return .green
+                                                } else {
+                                                    return .red
+                                                }
+                                              }),
+                          title: "Line chart",
+                          legend: "Basic",
+                          curvedLines: false,
+                          fillGraph: false,
+                          style: LineChartStyle(chartStyle: Styles.barChartStyleOrangeLight, axisColor: .green) )
                 .environment(\.colorScheme, .light)
             
-            LineChartView(data: [282.502, 284.495, 283.51, 285.019, 285.197, 286.118, 288.737, 288.455, 289.391, 287.691, 285.878, 286.46, 286.252, 284.652, 284.129, 284.188], title: "Line chart", legend: "Basic")
+            LineChartView(data: LineChartData(points: [282.502, 284.495, 283.51, 285.019, 285.197, 286.118, 288.737, 288.455, 289.391, 287.691, 285.878, 286.46, 286.252, 284.652, 284.129, 284.188],
+                                              minY: 280,
+                                              maxY: 300,
+                                              getColor: { value in
+                                                if value > 285.5 {
+                                                    return .green
+                                                } else {
+                                                    return .red
+                                                }
+                                              }),
+                          title: "Line chart",
+                          legend: "Basic",
+                          curvedLines: true,
+                          fillGraph: true,
+                          style: LineChartStyle(chartStyle: Styles.barChartStyleOrangeLight, axisColor: .green) )
                 .environment(\.colorScheme, .light)
         }
     }

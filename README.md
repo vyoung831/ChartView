@@ -10,6 +10,7 @@
     1. [ChartData](#chartdata)
 1. [Charts](#charts)
     1. [Line charts](#line-charts)
+        1. [LineView](#line-view)
     1. [Bar charts](#bar-charts)
     1. [Pie charts](#pie-charts)
 1. [WatchOS support](#watchos-support)
@@ -34,6 +35,15 @@ Instead, source files are [framed in conditional compilation blocks](https://doc
 # Charts
 
 ## Line charts
+`SwiftUICharts` contains the following line chart types:
+| Struct name | Description | Supported? |
+|-|-|-|
+| LineView | View containing single line | Y |
+| LineChartView | Widget view containing single line | N |
+| MultiLineChartView | Widget view containing multiple Lines. | N |
+
+## LineView
+
 
 ## Bar charts
 

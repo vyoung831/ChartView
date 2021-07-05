@@ -10,36 +10,36 @@ import SwiftUI
 #if os(iOS) || os(watchOS)
 
 public struct MultiLineChartView: View {
+    
     @Environment(\.colorScheme) var colorScheme: ColorScheme
-    var data:[MultiLineChartData]
+    var lines: [(data: MultiLineChartViewData, style: LineChartStyle)]
     public var title: String
     public var legend: String?
+    public var curvedLines: Bool
     public var style: ChartStyle
-    public var darkModeStyle: ChartStyle
     public var formSize: CGSize
     public var dropShadow: Bool
-    public var valueSpecifier:String
+    public var valueSpecifier: String
     
-    @State private var touchLocation:CGPoint = .zero
+    @State private var touchLocation: CGPoint = .zero
     @State private var showIndicatorDot: Bool = false
     @State private var currentValue: Double = 2 {
         didSet{
             if (oldValue != self.currentValue && showIndicatorDot) {
                 HapticFeedback.playSelection()
             }
-            
         }
     }
     
-    var globalMin:Double {
-        if let min = data.flatMap({$0.onlyPoints()}).min() {
+    var globalMin: Double {
+        if let min = lines.flatMap({$0.data.onlyPoints()}).min() {
             return min
         }
         return 0
     }
     
-    var globalMax:Double {
-        if let max = data.flatMap({$0.onlyPoints()}).max() {
+    var globalMax: Double {
+        if let max = lines.flatMap({$0.data.onlyPoints()}).max() {
             return max
         }
         return 0
@@ -48,20 +48,20 @@ public struct MultiLineChartView: View {
     var frame = CGSize(width: 180, height: 120)
     private var rateValue: Int?
     
-    public init(data: [([Double], GradientColor)],
+    public init(lines: [(MultiLineChartViewData, LineChartStyle)],
                 title: String,
                 legend: String? = nil,
                 style: ChartStyle = Styles.lineChartStyleOne,
+                curvedLines: Bool,
                 form: CGSize = ChartForm.medium,
                 rateValue: Int? = nil,
                 dropShadow: Bool = true,
                 valueSpecifier: String = "%.1f") {
-        
-        self.data = data.map({ MultiLineChartData(points: $0.0, gradient: $0.1)})
+        self.lines = lines
         self.title = title
         self.legend = legend
+        self.curvedLines = curvedLines
         self.style = style
-        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
         self.formSize = form
         frame = CGSize(width: self.formSize.width, height: self.formSize.height/2)
         self.rateValue = rateValue
@@ -72,7 +72,7 @@ public struct MultiLineChartView: View {
     public var body: some View {
         ZStack(alignment: .center){
             RoundedRectangle(cornerRadius: 20)
-                .fill(self.colorScheme == .dark ? self.darkModeStyle.backgroundColor : self.style.backgroundColor)
+                .fill(self.style.backgroundColor)
                 .frame(width: frame.width, height: 240, alignment: .center)
                 .shadow(radius: self.dropShadow ? 8 : 0)
             VStack(alignment: .leading){
@@ -81,11 +81,11 @@ public struct MultiLineChartView: View {
                         Text(self.title)
                             .font(.title)
                             .bold()
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
+                            .foregroundColor(self.style.textColor)
                         if (self.legend != nil){
                             Text(self.legend!)
                                 .font(.callout)
-                                .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
+                                .foregroundColor(self.style.accentColor)
                         }
                         HStack {
                             if (rateValue ?? 0 >= 0){
@@ -112,15 +112,14 @@ public struct MultiLineChartView: View {
                 Spacer()
                 GeometryReader{ geometry in
                     ZStack{
-                        ForEach(0..<self.data.count) { i in
-                            Line(data: self.data[i],
-                                 gradient: self.data[i].getGradient(),
+                        ForEach(0 ..< self.lines.count) { i in
+                            Line(data: self.lines[i].data,
+                                 style: self.lines[i].style,
                                  index: i,
-                                 showBackground: false,
+                                 curvedLines: self.curvedLines,
+                                 fillGraph: false,
                                  touchLocation: self.$touchLocation,
-                                 showIndicator: self.$showIndicatorDot,
-                                 minDataValue: .constant(self.globalMin),
-                                 maxDataValue: .constant(self.globalMax))
+                                 showIndicator: self.$showIndicatorDot)
                         }
                     }
                 }

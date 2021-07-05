@@ -11,7 +11,9 @@ import SwiftUI
 #if os(iOS) || os(watchOS)
 
 struct IndicatorPoint: View {
+    
     var body: some View {
+        
         ZStack{
             Circle()
                 .fill(Colors.IndicatorKnob)
@@ -20,7 +22,9 @@ struct IndicatorPoint: View {
         }
         .frame(width: 14, height: 14)
         .shadow(color: Colors.LegendColor, radius: 6, x: 0, y: 6)
+        
     }
+    
 }
 
 #endif

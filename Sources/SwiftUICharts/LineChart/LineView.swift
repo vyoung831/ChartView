@@ -12,146 +12,147 @@ import SwiftUI
 
 public struct LineView: View {
     
-    @ObservedObject var data: ChartData
-    
+    @ObservedObject var data: LineChartData
     public var title: String?
-    public var legend: String?
-    public var style: ChartStyle
-    public var darkModeStyle: ChartStyle
+    public var subtext: String?
+    public var curvedLines: Bool = false
+    public var fillGraph: Bool
+    public var style: LineChartStyle
     public var valueSpecifier: String
     
-    // Constants for the zStack that the Legend and Line are drawn in.
-    let zStackHeight: CGFloat = 240
-    let zStackOffset: CGFloat = 40
+    // `graphInsets` provides insets for graph (Line and Legend) within the graph area (Line, Legend, and MagnifierRect).
+    let graphInsets: EdgeInsets = EdgeInsets(top: 45, leading: 0, bottom: 45, trailing: 0)
+    let titleAndSubtextHeight: CGFloat = 75
+    let mainVStackSpacing: CGFloat = 5
     
-    @Environment(\.colorScheme) var colorScheme: ColorScheme
-    @State private var showLegend = false
-    @State private var dragLocation: CGPoint = .zero
-    @State private var touchLocation: CGPoint = .zero
-    @State private var opacity: Double = 0
-    
-    @State private var currentX: String = ""
-    @State private var currentY: Double = 0
+    // Drag gesture and magnifier rectangle vars
+    @State private var showLegend: Bool = false
     @State private var hideHorizontalLines: Bool = false
+    @State private var dragged: Bool = false
+    @State private var touchLocation: CGPoint = .zero
+    @State private var closestX: String = ""
+    @State private var closestY: Double = 0
     
-    public init(data: [(String,Double)],
-                title: String? = nil,
-                legend: String? = nil,
-                style: ChartStyle = Styles.lineChartStyleOne,
-                valueSpecifier: String? = "%.1f") {
-        self.data = ChartData(values: data)
+    public init(data: LineChartData,
+                title: String?, subtext: String?,
+                fillGraph: Bool, style: LineChartStyle,
+                valueSpecifier: String = "%.1f") {
+        self.data = data
         self.title = title
-        self.legend = legend
+        self.subtext = subtext
+        self.fillGraph = fillGraph
         self.style = style
-        self.valueSpecifier = valueSpecifier!
-        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
+        self.valueSpecifier = valueSpecifier
     }
     
-    public init(data: [Double],
-                title: String? = nil,
-                legend: String? = nil,
-                style: ChartStyle = Styles.lineChartStyleOne,
-                valueSpecifier: String? = "%.1f") {
-        self.data = ChartData(points: data)
-        self.title = title
-        self.legend = legend
-        self.style = style
-        self.valueSpecifier = valueSpecifier!
-        self.darkModeStyle = style.darkModeStyle != nil ? style.darkModeStyle! : Styles.lineViewDarkMode
+    /**
+     - parameter totalHeight: The total height available for LineView to be drawn in.
+     - returns: The height available for the graph area (`Line`, `Legend`, and `MagnifierRect`)  to be drawn in.
+     */
+    private func getGraphAreaHeight(_ totalHeight: CGFloat) -> CGFloat {
+        return totalHeight - mainVStackSpacing - titleAndSubtextHeight
+    }
+    
+    /**
+     - parameter totalHeight: The total height available for LineView to be drawn in.
+     - returns: The height available for the graph (`Line` and `Legend`) to be drawn in.
+     */
+    private func getGraphHeight(_ totalHeight: CGFloat) -> CGFloat {
+        return totalHeight - mainVStackSpacing - titleAndSubtextHeight - graphInsets.top - graphInsets.bottom
     }
     
     public var body: some View {
-        GeometryReader{ geometry in
-            VStack(alignment: .leading, spacing: 8) {
+        
+        GeometryReader { geometry in
+            
+            VStack(alignment: .leading, spacing: self.mainVStackSpacing) {
                 
-                Group{
+                VStack(alignment: .leading, spacing: 5) {
                     
                     if let titleString = self.title {
                         Text(titleString)
-                            .font(.title)
                             .bold()
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.textColor : self.style.textColor)
+                            .font(.title)
+                            .foregroundColor(self.style.textColor)
                     }
                     
-                    if let legendString = self.legend {
-                        Text(legendString)
+                    if let subtextString = self.subtext {
+                        Text(subtextString)
                             .font(.callout)
-                            .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor : self.style.legendTextColor)
+                            .foregroundColor(self.style.textColor)
                     }
                     
                 }
-                .offset(x: 0, y: 20)
+                .frame(height: titleAndSubtextHeight)
                 
-                ZStack {
-                    GeometryReader{ reader in
-                        
-                        Rectangle()
-                            .foregroundColor(.clear)
-                        
+                // ZStack containing graph (MagnifierRect, and further inset Line + Legend so that MagnifierRect appears larger than graph)
+                ZStack(alignment: Alignment(horizontal: .leading, vertical: .bottom)) {
+                    
+                    Rectangle()
+                        .foregroundColor(self.style.backgroundColor)
+                    
+                    Group {
+
                         if self.showLegend {
-                            Legend(hideHorizontalLines: self.$hideHorizontalLines,
-                                   data: self.data)
+                            Legend(minY: CGFloat(self.data.minY), maxY: CGFloat(self.data.maxY), style: self.style, hideHorizontalLines: self.$hideHorizontalLines)
+                                .frame(width: geometry.size.width - (MagnifierRect.width/2))
                                 .transition(.opacity)
                                 .animation(Animation.easeOut(duration: 1))
                         }
-                        
+
                         Line(data: self.data,
-                             gradient: self.style.gradientColor,
-                             showBackground: false,
+                             style: self.style,
+                             curvedLines: self.curvedLines,
+                             fillGraph: self.fillGraph,
                              touchLocation: self.$touchLocation,
-                             showIndicator: self.$hideHorizontalLines,
-                             minDataValue: .constant(nil),
-                             maxDataValue: .constant(nil)
+                             showIndicator: self.$hideHorizontalLines
                         )
-                        .frame(width: reader.size.width - Legend.legendOffset - (MagnifierRect.width/2),
-                               height: reader.size.height)
-                        .offset(x: Legend.legendOffset, y: 0)
+                        .frame(width: geometry.size.width - Legend.legendOffset - (MagnifierRect.width/2))
+                        .offset(x: Legend.legendOffset)
                         .onAppear(){
                             self.showLegend = true
                         }
                         .onDisappear(){
                             self.showLegend = false
                         }
-                        
+
                     }
-                    .frame(width: geometry.frame(in: .local).size.width, height: zStackHeight)
-                    .offset(y: self.zStackOffset)
+                    .padding(self.graphInsets)
                     
                     MagnifierRect(valueSpecifier: self.valueSpecifier,
-                                  x: self.$currentX,
-                                  y: self.$currentY)
-                        .opacity(self.opacity)
-                        .offset(x: self.dragLocation.x - geometry.frame(in: .local).size.width/2, y: 36)
-                        .frame(width: MagnifierRect.width, height: 260)
+                                  style: self.style,
+                                  x: self.$closestX,
+                                  y: self.$closestY)
+                        .opacity(self.dragged ? 1 : 0)
+                        .offset(x: self.touchLocation.x + Legend.legendOffset - (MagnifierRect.width/2) )
+                        .frame(height: getGraphAreaHeight(geometry.size.height))
+                    
                 }
-                .frame(width: geometry.frame(in: .local).size.width, height: zStackHeight)
+                .frame(width: geometry.size.width, height: getGraphAreaHeight(geometry.size.height))
                 .gesture(DragGesture()
                             .onChanged({ value in
-                                self.dragLocation = value.location
-                                self.opacity = 1
+                                self.dragged = true
                                 self.hideHorizontalLines = true
                                 
                                 let offsettedX = value.location.x - Legend.legendOffset
-                                
                                 self.touchLocation = CGPoint(x: offsettedX, y: value.location.y)
-                                let closestPoint =
-                                    Line.getClosestPointInData(data: self.data,
-                                                               touchLocation: self.touchLocation,
-                                                               totalSize: CGSize(width: geometry.frame(in: .local).size.width
-                                                                                    - Legend.legendOffset
-                                                                                    - MagnifierRect.width/2,
-                                                                                 height: zStackHeight))
-                                self.currentX = closestPoint.x
-                                self.currentY = closestPoint.y
-                                
+                                let closestPoint = Line.getClosestPointInData(data: self.data,
+                                                                              touchLocation: self.touchLocation,
+                                                                              totalSize: CGSize(width: geometry.size.width - Legend.legendOffset - MagnifierRect.width/2,
+                                                                                                height: geometry.size.height - titleAndSubtextHeight - mainVStackSpacing))
+                                self.closestX = closestPoint.x
+                                self.closestY = closestPoint.y
                             })
                             .onEnded({ value in
-                                self.opacity = 0
+                                self.dragged = false
                                 self.hideHorizontalLines = false
                             })
                 )
+                
             }
+            
         }
+        
     }
     
 }
