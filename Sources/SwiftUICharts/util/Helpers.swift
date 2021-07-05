@@ -21,22 +21,22 @@ public class ChartData: ObservableObject {
         self.points = points.map{("", Double($0))}
     }
     
-    public init<N: BinaryInteger>(values: [(String, N)]){
+    public init<N: BinaryInteger>(values: [(String, N)]) {
         self.points = values.map{($0.0, Double($0.1))}
         self.valuesGiven = true
     }
     
-    public init<N: BinaryFloatingPoint>(values: [(String, N)]){
+    public init<N: BinaryFloatingPoint>(values: [(String, N)]) {
         self.points = values.map{($0.0, Double($0.1))}
         self.valuesGiven = true
     }
     
-    public init<N: BinaryInteger>(numberValues: [(N, N)]){
+    public init<N: BinaryInteger>(numberValues: [(N, N)]) {
         self.points = numberValues.map{(String($0.0), Double($0.1))}
         self.valuesGiven = true
     }
     
-    public init<N: BinaryFloatingPoint & LosslessStringConvertible>(numberValues: [(N, N)]){
+    public init<N: BinaryFloatingPoint & LosslessStringConvertible>(numberValues: [(N, N)]) {
         self.points = numberValues.map{(String($0.0), Double($0.1))}
         self.valuesGiven = true
     }

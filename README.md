@@ -36,11 +36,14 @@ Instead, source files are [framed in conditional compilation blocks](https://doc
 
 ## Line charts
 `SwiftUICharts` contains the following line chart types:
-| Struct name | Description | Supported? |
-|-|-|-|
-| LineView | View containing single line | Y |
-| LineChartView | Widget view containing single line | N |
-| MultiLineChartView | Widget view containing multiple Lines. | N |
+| Struct name | Description | Supported? | Notes |
+|-|-|-|-|
+| LineView | View containing single line | Y | |
+| LineChartView | Widget view containing single line | N | |
+| MultiLineChartView | Widget view containing multiple Lines. | N | |
+| BoxView | View containing box charts | N | Only supported for iOS 14.0 or later. |
+| BarChartView | Widget view for displaying bar charts | N | |
+| PieChartView | Widget view for displaying pie charts | N | |
 
 ## LineView
 
