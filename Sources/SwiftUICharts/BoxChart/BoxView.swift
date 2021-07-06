@@ -12,13 +12,13 @@ import SwiftUI
 public struct BoxView: View {
     
     var style: ChartStyle
-    var data: [ChartData]
+    var data: [BoxChartData]
     
     var title: String?
     var subtext: String?
     var boxesPerRow: Int
     
-    public init(style: ChartStyle, data: [ChartData], title: String?, subtext: String?, boxesPerRow: Int) {
+    public init(style: ChartStyle, data: [BoxChartData], title: String?, subtext: String?, boxesPerRow: Int) {
         self.style = style
         self.data = data
         self.title = title
@@ -59,6 +59,7 @@ public struct BoxView: View {
                         
                         ForEach(0 ..< data[groupIdx].onlyPoints().count, id: \.self) { idx in
                             Rectangle()
+                                .foregroundColor(data[groupIdx].getColor(data[groupIdx].onlyPoints()[idx]))
                         }
                         
                     }

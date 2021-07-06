@@ -132,6 +132,40 @@ public class MultiLineChartViewData: LineChartData {
     
 }
 
+// MARK: - ChartData subclasses for box charts
+
+public class BoxChartData: ChartData {
+    
+    // Used for deciding what a box should be colored.
+    var getColor: (Double) -> Color
+    
+    public init<N: BinaryFloatingPoint>(points: [N], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(points: points)
+    }
+    
+    public init<N: BinaryInteger>(values: [(String, N)], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(values: values)
+    }
+    
+    public init<N: BinaryFloatingPoint>(values: [(String, N)], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(values: values)
+    }
+    
+    public init<N: BinaryInteger>(numberValues: [(N, N)], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(numberValues: numberValues)
+    }
+    
+    public init<N: BinaryFloatingPoint & LosslessStringConvertible>(numberValues: [(N, N)], getColor: @escaping (Double) -> Color) {
+        self.getColor = getColor
+        super.init(numberValues: numberValues)
+    }
+    
+}
+
 class HapticFeedback {
     #if os(watchOS)
     //watchOS implementation
