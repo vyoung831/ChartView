@@ -12,15 +12,15 @@ import SwiftUI
 public struct BoxView: View {
     
     var style: ChartStyle
-    var data: [BoxChartData]
+    var sections: [(sectionTitle: String, data: BoxChartData)]
     
     var title: String?
     var subtext: String?
     var boxesPerRow: Int
     
-    public init(style: ChartStyle, data: [BoxChartData], title: String?, subtext: String?, boxesPerRow: Int) {
+    public init(style: ChartStyle, sections: [(String, BoxChartData)], title: String?, subtext: String?, boxesPerRow: Int) {
         self.style = style
-        self.data = data
+        self.sections = sections
         self.title = title
         self.subtext = subtext
         self.boxesPerRow = boxesPerRow
@@ -37,7 +37,7 @@ public struct BoxView: View {
     
     public var body: some View {
         
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 25) {
             
             if let titleString = self.title {
                 Text(titleString)
@@ -52,17 +52,23 @@ public struct BoxView: View {
                     .foregroundColor(self.style.textColor)
             }
             
-            ForEach(0 ..< data.count, id: \.self) { groupIdx in
+            ForEach(0 ..< sections.count, id: \.self) { sectionIdx in
                 
-                if #available(iOS 14.0, *) {
-                    LazyVGrid(columns: vGridItems) {
-                        
-                        ForEach(0 ..< data[groupIdx].onlyPoints().count, id: \.self) { idx in
-                            Rectangle()
-                                .foregroundColor(data[groupIdx].getColor(data[groupIdx].onlyPoints()[idx]))
+                VStack(alignment: .leading, spacing: 5) {
+                    
+                    Text(sections[sectionIdx].sectionTitle)
+                        .bold()
+                    
+                    if #available(iOS 14.0, *) {
+                        LazyVGrid(columns: vGridItems) {
+                            ForEach(0 ..< sections[sectionIdx].data.onlyPoints().count, id: \.self) { idx in
+                                Rectangle()
+                                    .foregroundColor(sections[sectionIdx].data.getColor(
+                                                        sections[sectionIdx].data.onlyPoints()[idx]))
+                            }
                         }
-                        
                     }
+                    
                 }
                 
             }
