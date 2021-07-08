@@ -17,6 +17,7 @@ public struct BoxView: View {
     var title: String?
     var subtext: String?
     var boxesPerRow: Int
+    @State var currentTouchedIndex: (Int, Int) = (0,0)
     
     public init(style: ChartStyle, sections: [(String, BoxChartData)], title: String?, subtext: String?, boxesPerRow: Int) {
         self.style = style
@@ -65,6 +66,11 @@ public struct BoxView: View {
                                 Rectangle()
                                     .foregroundColor(sections[sectionIdx].data.getColor(
                                                         sections[sectionIdx].data.onlyPoints()[idx]))
+                                    .onTapGesture {
+                                        self.currentTouchedIndex = (sectionIdx, idx)
+                                    }
+                                    .scaleEffect(self.currentTouchedIndex == (sectionIdx, idx) ? 1.25 : 1)
+                                    .animation(Animation.spring())
                             }
                         }
                     }
