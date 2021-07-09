@@ -61,6 +61,8 @@ public struct BoxView: View {
                         .bold()
                     
                     if #available(iOS 14.0, *) {
+                        
+                        // onTapGesture is used before the gesture modifier w/DragGesture so that the DragGesture is delayed (https://www.hackingwithswift.com/forums/swiftui/a-guide-to-delaying-gestures-in-scrollview/6005)
                         LazyVGrid(columns: vGridItems) {
                             ForEach(0 ..< sections[sectionIdx].data.onlyPoints().count, id: \.self) { idx in
                                 Rectangle()
@@ -69,6 +71,11 @@ public struct BoxView: View {
                                     .onTapGesture {
                                         self.currentTouchedIndex = (sectionIdx, idx)
                                     }
+                                    .gesture(
+                                        DragGesture()
+                                            .onChanged({ value in
+                                                self.currentTouchedIndex = (sectionIdx, idx)
+                                            }))
                                     .scaleEffect(self.currentTouchedIndex == (sectionIdx, idx) ? 1.25 : 1)
                                     .animation(Animation.spring())
                             }
